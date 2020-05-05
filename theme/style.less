@@ -32,6 +32,10 @@
     color: white;
 }
 
+.ui.button.hw-button {
+    background-color: darken(#30a7a7, 10%);
+}
+
 .docs.inlinebutton.ui.button.download-button:hover {
     &:extend(.ui.purple.button all);
 }
@@ -66,6 +70,11 @@
 .ui.home {
     .getting-started-segment {
         background-position: 50% 25%;
+    }
+    .detailview .actions .card-action {
+        &:first-child .button.approve {
+            background-color: lighten(@primaryColor, 10%);
+        }
     }
 }
 

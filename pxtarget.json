@@ -111,6 +111,45 @@
         "webUSB": true,
         "useNewFunctions": true
     },
+    "compileService": {
+        "yottaTarget": "bbc-microbit-classic-gcc",
+        "yottaCorePackage": "microbit",
+        "githubCorePackage": "lancaster-university/microbit",
+        "gittag": "v2.2.0-rc5",
+        "serviceId": "microbit",
+        "dockerImage": "pext/yotta:latest"
+    },
+    "multiVariants": [
+        "mbdal",
+        "mbcodal"
+    ],
+    "variants": {
+        "mbdal": {
+            "compile": {},
+            "compileService": {}
+        },
+        "mbcodal": {
+            "compile": {
+                "flashUsableEnd": null,
+                "flashEnd": null
+            },
+            "compileService": {
+                "buildEngine": "codal",
+                "codalTarget": {
+                    "name": "codal-microbit",
+                    "url": "https://github.com/microbit-foundation/codal-microbit",
+                    "branch": "v0.1.0",
+                    "type": "git"
+                },
+                "codalBinary": "MICROBIT",
+                "githubCorePackage": "microbit-foundation/codal",
+                "gittag": "pxt-wip-build-v0.0.1",
+                "serviceId": "mbcodal",
+                "dockerImage": "pext/yotta:latest",
+                "yottaConfigCompatibility": true
+            }
+        }
+    },
     "runtime": {
         "mathBlocks": true,
         "loopsBlocks": true,
@@ -119,6 +158,8 @@
         "textBlocks": true,
         "listsBlocks": true,
         "functionBlocks": true,
+        "breakBlock": true,
+        "continueBlock": true,
         "functionsOptions": {
             "useNewFunctions": true,
             "extraFunctionEditorTypes": [
@@ -300,13 +341,16 @@
         "extendFieldEditors": true,
         "enableTrace": true,
         "experiments": [
+            "autoWebUSBDownload",
             "allowPackageExtensions",
             "instructions",
+            "accessibleBlocks",
             "debugExtensionCode",
             "bluetoothUartConsole",
             "bluetoothPartialFlashing",
             "simScreenshot",
-            "simGif"
+            "simGif",
+            "errorList"
         ],
         "bluetoothUartFilters": [
             {
@@ -366,9 +410,9 @@
             "functions": "#005A9E",
             "arrays": "#E65722"
         },
+        "blocksCollapsing": true,
         "highContrast": true,
         "greenScreen": true,
-        "accessibleBlocks": true,
         "print": true,
         "selectLanguage": true,
         "availableLocales": [
@@ -388,6 +432,7 @@
             "ko",
             "nl",
             "nb",
+            "nn-NO",
             "pl",
             "pt-BR",
             "pt-PT",

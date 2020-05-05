@@ -344,7 +344,7 @@ declare namespace input {
     //% blockId=device_get_magnetic_force block="magnetic force (µT)|%NAME" blockGap=8
     //% parts="compass"
     //% advanced=true shim=input::magneticForce
-    function magneticForce(dimension: Dimension): int32;
+    function magneticForce(dimension: Dimension): number;
 
     /**
      * Obsolete, compass calibration is automatic.
@@ -521,16 +521,17 @@ declare namespace led {
     function unplot(x: int32, y: int32): void;
 
     /**
-     * Get the on/off state of the specified LED using x, y coordinates. (0,0) is upper left.
+     * Get the brightness state of the specified LED using x, y coordinates. (0,0) is upper left.
      * @param x the horizontal coordinate of the LED
      * @param y the vertical coordinate of the LED
      */
-    //% help=led/point weight=76
-    //% blockId=device_point block="point|x %x|y %y"
+    //% help=led/point-brightness weight=76
+    //% blockId=device_point_brightness block="point|x %x|y %y brightness"
     //% parts="ledmatrix"
     //% x.min=0 x.max=4 y.min=0 y.max=4
-    //% x.fieldOptions.precision=1 y.fieldOptions.precision=1 shim=led::point
-    function point(x: int32, y: int32): boolean;
+    //% x.fieldOptions.precision=1 y.fieldOptions.precision=1
+    //% advanced=true shim=led::pointBrightness
+    function pointBrightness(x: int32, y: int32): int32;
 
     /**
      * Get the screen brightness from 0 (off) to 255 (full bright).
@@ -764,7 +765,23 @@ declare namespace pins {
     function analogSetPitchPin(name: AnalogPin): void;
 
     /**
-     * Emit a pulse-width modulation (PWM) signal to the current pitch pin. Use `analog set pitch pin` to define the pitch pin.
+     * Sets the volume on the pitch pin
+     * @param volume the intensity of the sound from 0..255
+     */
+    //% blockId=device_analog_set_pitch_volume block="analog set pitch volume $volume"
+    //% help=pins/analog-set-pitch-volume weight=3 advanced=true
+    //% volume.min=0 volume.max=255 shim=pins::analogSetPitchVolume
+    function analogSetPitchVolume(volume: int32): void;
+
+    /**
+     * Gets the volume the pitch pin from 0..255
+     */
+    //% blockId=device_analog_pitch_volume block="analog pitch volume"
+    //% help=pins/analog-pitch-volume weight=3 advanced=true shim=pins::analogPitchVolume
+    function analogPitchVolume(): int32;
+
+    /**
+     * Emit a plse-width modulation (PWM) signal to the current pitch pin. Use `analog set pitch pin` to define the pitch pin.
      * @param frequency frequency to modulate in Hz.
      * @param ms duration of the pitch in milli seconds.
      */
@@ -1039,6 +1056,12 @@ declare interface Buffer {
      */
     //% shim=BufferMethods::write
     write(dstOffset: int32, src: Buffer): void;
+
+    /**
+     * Compute k-bit FNV-1 non-cryptographic hash of the buffer.
+     */
+    //% shim=BufferMethods::hash
+    hash(bits: int32): uint32;
 }
 declare namespace control {
 

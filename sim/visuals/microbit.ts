@@ -1032,7 +1032,7 @@ namespace pxsim.visuals {
             this.updateRgbLed();
 			this.updateSpeaker();
 
-            if (!runtime || runtime.dead) U.addClass(this.element, "grayscale");
+            if (!this.props.runtime || this.props.runtime.dead) U.addClass(this.element, "grayscale");
             else U.removeClass(this.element, "grayscale");
         }
 
@@ -1137,6 +1137,8 @@ namespace pxsim.visuals {
 					class: 'sim-text',
 					x: 48, y: ty + 78
 				}) as SVGTextElement;
+                if (this.props.runtime)
+                    this.props.runtime.environmentGlobals[pxsim.localization.lf("temperature")] = state.thermometerState.temperature;
                 this.updateTheme();
 
                 let pt = this.element.createSVGPoint();
@@ -1181,6 +1183,8 @@ namespace pxsim.visuals {
             if (txt != this.headText.textContent) {
                 svg.rotateElement(this.head, xc, yc, state.compassState.heading + 180);
                 this.headText.textContent = txt;
+                if (this.props.runtime)
+                    this.props.runtime.environmentGlobals[pxsim.localization.lf("heading")] = state.compassState.heading;
             } */
         }
 
@@ -1243,9 +1247,29 @@ namespace pxsim.visuals {
                             this.board.lightSensorState.lightLevel = level;
                             this.applyLightLevel();
                         }
-                    }, ev => { },
-                    ev => { })
-                this.lightLevelText = svg.child(this.g, "text", { x: cx - r - 7, y: cy + r + 8, text: '', class: 'sim-text inverted' }) as SVGTextElement;
+                    },
+                    // start
+                    ev => { },
+                    // stop
+                    ev => { },
+                    // keydown
+                    (ev) => {
+                        let charCode = (typeof ev.which == "number") ? ev.which : ev.keyCode
+                        if (charCode === 40 || charCode === 37) { // Down/Left arrow
+                            this.board.lightSensorState.lightLevel--;
+                            if (this.board.lightSensorState.lightLevel < 0) {
+                                this.board.lightSensorState.lightLevel = 255;
+                            }
+                            this.applyLightLevel();
+                        } else if (charCode === 38 || charCode === 39) { // Up/Right arrow
+                            this.board.lightSensorState.lightLevel++;
+                            if (this.board.lightSensorState.lightLevel > 255) {
+                                this.board.lightSensorState.lightLevel = 0;
+                            }
+                            this.applyLightLevel();
+                        }
+                    });
+                this.lightLevelText = svg.child(this.g, "text", { x: 85, y: cy + r - 5, text: '', class: 'sim-text' }) as SVGTextElement;
                 this.updateTheme();
             }
 
@@ -1268,6 +1292,8 @@ namespace pxsim.visuals {
             const y = -state.accelerometerState.accelerometer.getY();
             const af = 8 / 1023;
             const s = 1 - Math.min(0.1, Math.pow(Math.max(Math.abs(x), Math.abs(y)) / 1023, 2) / 35);
+
+            acc.updateEnvironmentGlobals();
 
             this.element.style.transform = `perspective(30em) rotateX(${y * af}deg) rotateY(${x * af}deg) scale(${s}, ${s})`
             

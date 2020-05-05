@@ -173,12 +173,13 @@ enum MusicEvent {
  * Generation of music tones.
  */
 //% color=#DF4600 weight=98 icon="\uf025"
+//% groups='["Melody", "Tone", "Volume", "Tempo", "Melody Advanced"]'
 namespace music {
     const INTERNAL_MELODY_ENDED = 5;
 
     let beatsPerMinute: number = 120;
-     //% whenUsed
-     const freqs = hex`
+    //% whenUsed
+    const freqs = hex`
         1f00210023002500270029002c002e003100340037003a003e004100450049004e00520057005c00620068006e00
         75007b0083008b0093009c00a500af00b900c400d000dc00e900f70006011501260137014a015d01720188019f01
         b801d201ee010b022a024b026e029302ba02e40210033f037003a403dc03170455049704dd0427057505c8052006
@@ -196,6 +197,7 @@ namespace music {
     //% blockId=device_play_note block="play|tone %note=device_note|for %duration=device_beat" blockGap=8
     //% parts="headphone"
     //% useEnumVal=1
+    //% group="Tone"
     export function playTone(frequency: number, ms: number): void {
         if (_playTone) _playTone(frequency, ms);
         else speakerPlayTone(frequency, ms);
@@ -209,6 +211,7 @@ namespace music {
     //% blockId=device_ring block="ring tone (Hz)|%note=device_note" blockGap=8
     //% parts="headphone"
     //% useEnumVal=1
+    //% group="Tone"
     export function ringTone(frequency: number): void {
         playTone(frequency, 0);
     }
@@ -220,6 +223,7 @@ namespace music {
     //% help=music/rest weight=79
     //% blockId=device_rest block="rest(ms)|%duration=device_beat"
     //% parts="headphone"
+    //% group="Tone"
     export function rest(ms: number): void {
         playTone(0, ms);
     }
@@ -236,6 +240,7 @@ namespace music {
     //% name.fieldEditor="note" name.defl="262"
     //% name.fieldOptions.decompileLiterals=true
     //% useEnumVal=1
+    //% group="Tone"
     //% weight=10 blockGap=8
     export function noteFrequency(name: Note): number {
         return name;
@@ -251,6 +256,8 @@ namespace music {
      */
     //% help=music/beat weight=49
     //% blockId=device_beat block="%fraction|beat"
+    //% group="Tempo"
+    //% blockGap=8
     export function beat(fraction?: BeatFraction): number {
         init();
         if (fraction == null) fraction = BeatFraction.Whole;
@@ -271,6 +278,7 @@ namespace music {
      */
     //% help=music/tempo weight=40
     //% blockId=device_tempo block="tempo (bpm)" blockGap=8
+    //% group="Tempo"
     export function tempo(): number {
         init();
         return beatsPerMinute;
@@ -282,6 +290,7 @@ namespace music {
      */
     //% help=music/change-tempo-by weight=39
     //% blockId=device_change_tempo block="change tempo by (bpm)|%value" blockGap=8
+    //% group="Tempo"
     export function changeTempoBy(bpm: number): void {
         init();
         setTempo(beatsPerMinute + bpm);
@@ -294,6 +303,7 @@ namespace music {
     //% help=music/set-tempo weight=38
     //% blockId=device_set_tempo block="set tempo to (bpm)|%value"
     //% bpm.min=4 bpm.max=400
+    //% group="Tempo"
     export function setTempo(bpm: number): void {
         init();
         if (bpm > 0) {
@@ -311,6 +321,7 @@ namespace music {
     //% weight=50 help=music/builtin-melody
     //% blockId=device_builtin_melody block="%melody"
     //% blockHidden=true
+    //% group="Melody Advanced"
     export function builtInMelody(melody: Melodies): string[] {
         return getMelody(melody);
     }
@@ -320,8 +331,19 @@ namespace music {
      */
     //% blockId=melody_on_event block="music on %value"
     //% help=music/on-event weight=59 blockGap=32
+    //% group="Melody Advanced"
     export function onEvent(value: MusicEvent, handler: () => void) {
         control.onEvent(MICROBIT_MELODY_ID, value, handler);
+    }
+
+    /**
+     * Use startMelody instead
+     */
+    //% hidden=1 deprecated=1
+    //% parts="headphone"
+    //% group="Melody Advanced"
+    export function beginMelody(melodyArray: string[], options: MelodyOptions = 1) {
+        return startMelody(melodyArray, options);
     }
 
     /**
@@ -333,7 +355,8 @@ namespace music {
     //% help=music/begin-melody weight=60 blockGap=16
     //% blockId=device_start_melody block="start melody %melody=device_builtin_melody| repeating %options"
     //% parts="headphone"
-    export function beginMelody(melodyArray: string[], options: MelodyOptions = 1) {
+    //% group="Melody Advanced"
+    export function startMelody(melodyArray: string[], options: MelodyOptions = 1) {
         init();
         if (currentMelody != undefined) {
             if (((options & MelodyOptions.OnceInBackground) == 0)
@@ -383,6 +406,7 @@ namespace music {
     //% tempo.min=40 tempo.max=500
     //% tempo.defl=120
     //% parts=headphone
+    //% group="Melody"
     export function playMelody(melody: string, tempo: number) {
         melody = melody || "";
         setTempo(tempo);
@@ -402,7 +426,7 @@ namespace music {
             }
         }
 
-        music.beginMelody(notes, MelodyOptions.Once)
+        music.startMelody(notes, MelodyOptions.Once)
         control.waitForEvent(MICROBIT_MELODY_ID, INTERNAL_MELODY_ENDED);
     }
 
@@ -419,6 +443,7 @@ namespace music {
     //% melody.fieldOptions.decompileIndirectFixedInstances="true"
     //% melody.fieldOptions.onParentBlock="true"
     //% shim=TD_ID
+    //% group="Melody"
     export function melodyEditor(melody: string): string {
         return melody;
     }
@@ -430,11 +455,12 @@ namespace music {
     //% help=music/stop-melody weight=59 blockGap=16
     //% blockId=device_stop_melody block="stop melody $options"
     //% parts="headphone"
+    //% group="Melody Advanced"
     export function stopMelody(options: MelodyStopOptions) {
         if (options & MelodyStopOptions.Background)
-            beginMelody([], MelodyOptions.OnceInBackground);
+            startMelody([], MelodyOptions.OnceInBackground);
         if (options & MelodyStopOptions.Foreground)
-            beginMelody([], MelodyOptions.Once);
+            startMelody([], MelodyOptions.Once);
     }
 
     /**
@@ -442,8 +468,33 @@ namespace music {
      */
     //% help=music/set-play-tone
     //% advanced=true
+    //% group="Tone"
     export function setPlayTone(f: (frequency: number, duration: number) => void) {
         _playTone = f;
+    }
+
+    /**
+     * Set the default output volume of the sound synthesizer.
+     * @param volume the volume 0...255
+     */
+    //% blockId=synth_set_volume block="set volume %volume"
+    //% parts="speaker"
+    //% volume.min=0 volume.max=255
+    //% volume.defl=127
+    //% help=music/set-volume
+    //% weight=70
+    //% group="Volume"
+    export function setVolume(volume: number): void {
+        pins.analogSetPitchVolume(volume);
+    }
+
+    /**
+     * Gets the current volume
+     */
+    //% parts="speaker"
+    //% weight=70
+    export function volume(): number {
+        return pins.analogPitchVolume();
     }
 
     function playNextNote(melody: Melody): void {
