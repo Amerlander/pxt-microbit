@@ -112,12 +112,11 @@
         "useNewFunctions": true
     },
     "compileService": {
-        "yottaTarget": "bbc-microbit-classic-gcc",
+        "yottaTarget": "calliope-mini-classic-gcc",
         "yottaCorePackage": "microbit",
-        "githubCorePackage": "lancaster-university/microbit",
-        "gittag": "v2.2.0-rc5",
-        "serviceId": "microbit",
-        "dockerImage": "pext/yotta:latest"
+        "githubCorePackage": "calliope-mini/microbit",
+        "gittag": "v2.2.0-rc5.3b",
+        "serviceId": "calliope"
     },
     "multiVariants": [
         "mbdal",
@@ -284,13 +283,6 @@
             ]
         }
     },
-    "compileService": {
-        "yottaTarget": "calliope-mini-classic-gcc",
-        "yottaCorePackage": "microbit",
-        "githubCorePackage": "calliope-mini/microbit",
-        "gittag": "pxtgc-0",
-        "serviceId": "calliope"
-    },
     "serial": {
         "nameFilter": "^(mbed Serial Port|DAPLink CMSIS-DAP)",
         "log": true,
@@ -333,6 +325,7 @@
         "termsOfUseUrl": "https://go.microsoft.com/fwlink/?LinkID=206977",
         "githubUrl": "https://github.com/Microsoft/pxt-calliope",
         "boardName": "Calliope mini",
+        "boardNickname": "mini",
         "driveDisplayName": "MINI",
         "appStoreID": "1309545545",
         "mobileSafariDownloadProtocol": "microbithex://?data",
