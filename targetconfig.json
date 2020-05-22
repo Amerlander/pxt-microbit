@@ -51,6 +51,8 @@
             "KitronikLtd/pxt-kitronik-game-controller",
             "KitronikLtd/pxt-kitronik-robotics-board",
             "KitronikLtd/pxt-kitronik-klef-piano",
+            "adafruit/pxt-crickit",
+            "adafruit/pxt-seesaw",
             "Seeed-Studio/pxt-grove",
             "Seeed-Studio/pxt-grove-zero-for-microbit",
             "Tinkertanker/pxt-ir-receiver",
@@ -148,7 +150,6 @@
             "KitronikLtd/pxt-kitronik-accessbit",
             "kaku111/pxt-tobbieII",
             "alankrantas/pxt-DHT11_DHT22",
-            "cgs-matthew-pham/pxt-hitechnic-irseeker-v2",
             "Freenove/Makecode-Extension-Rover",
             "letstalkscience/pxt-cozir",
             "e-radionicacom/pxt-wifi",
@@ -197,7 +198,9 @@
             "CytronTechnologies/pxt-edubit",
             "MakeAndLearn/pxt-microshield",
             "4tronix/Orbit",
-            "elecfreaks/pxt-TPBot"
+            "elecfreaks/pxt-TPBot",
+            "CODOmicrobit/pxt-CODO",
+            "KitronikLtd/pxt-kitronik-move-motor"
         ],
         "preferredRepos": [
             "Microsoft/pxt-neopixel",
