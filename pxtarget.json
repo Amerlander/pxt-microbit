@@ -114,8 +114,8 @@
     "compileService": {
         "yottaTarget": "calliope-mini-classic-gcc",
         "yottaCorePackage": "microbit",
-        "githubCorePackage": "calliope-mini/microbit",
-        "gittag": "v2.2.0-rc5.3b",
+        "githubCorePackage": "Amerlander/microbit",
+        "gittag": "fetch01",
         "serviceId": "calliope"
     },
     "multiVariants": [
