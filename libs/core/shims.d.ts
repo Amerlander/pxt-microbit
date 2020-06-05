@@ -1132,12 +1132,14 @@ declare namespace light {
     /**
      * Sends a color buffer to a light strip
      **/
+    //% advanced=true
     //% shim=light::sendWS2812Buffer
     function sendWS2812Buffer(buf: Buffer, pin: int32): void;
 
     /**
      * Sets the light mode of a pin
      **/
+    //% advanced=true
     //% shim=light::setMode
     function setMode(pin: int32, mode: int32): void;
 }
