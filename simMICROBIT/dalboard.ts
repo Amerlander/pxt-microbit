@@ -4,7 +4,7 @@
 
 namespace pxsim {
     export class DalBoard extends CoreBoard
-        implements RadioBoard {
+        implements RadioBoard, LightBoard, MicrophoneBoard {
         // state & update logic for component services
         ledMatrixState: LedMatrixState;
         edgeConnectorState: EdgeConnectorState;
@@ -15,11 +15,8 @@ namespace pxsim {
         lightSensorState: LightSensorState;
         buttonPairState: ButtonPairState;
         radioState: RadioState;
-        // microphoneState: AnalogSensorState;
-        // lightState: pxt.Map<CommonNeoPixelState>;
-        // neopixelState: NeoPixelState;
-        rgbLedState: number;
-        speakerState: SpeakerState;
+        microphoneState: AnalogSensorState;
+        lightState: pxt.Map<CommonNeoPixelState>;
         fileSystem: FileSystemState;
 
         // visual
@@ -30,7 +27,7 @@ namespace pxsim {
             super()
 
             // components
-            // this.lightState = {};
+            this.lightState = {};
             this.fileSystem = new FileSystemState();
             this.builtinParts["ledmatrix"] = this.ledMatrixState = new LedMatrixState(runtime);
             this.builtinParts["buttonpair"] = this.buttonPairState = new ButtonPairState({
@@ -62,42 +59,51 @@ namespace pxsim {
                     0,
                     0,
                     DAL.MICROBIT_ID_IO_P19,
-                    DAL.MICROBIT_ID_IO_P20,
-                    DAL.MICROBIT_ID_IO_P21
+                    DAL.MICROBIT_ID_IO_P20
                 ],
                 servos: {
-                    "P0": DAL.MICROBIT_ID_IO_P12,
-                    "P1": DAL.MICROBIT_ID_IO_P0,
-                    "P2": DAL.MICROBIT_ID_IO_P1,
-                    "P3": DAL.MICROBIT_ID_IO_P16
+                    "P0": DAL.MICROBIT_ID_IO_P0,
+                    "P1": DAL.MICROBIT_ID_IO_P1,
+                    "P2": DAL.MICROBIT_ID_IO_P2,
+                    "P3": DAL.MICROBIT_ID_IO_P3,
+                    "P4": DAL.MICROBIT_ID_IO_P4,
+                    "P5": DAL.MICROBIT_ID_IO_P5,
+                    "P6": DAL.MICROBIT_ID_IO_P6,
+                    "P7": DAL.MICROBIT_ID_IO_P7,
+                    "P8": DAL.MICROBIT_ID_IO_P8,
+                    "P9": DAL.MICROBIT_ID_IO_P9,
+                    "P10": DAL.MICROBIT_ID_IO_P10,
+                    "P11": DAL.MICROBIT_ID_IO_P11,
+                    "P12": DAL.MICROBIT_ID_IO_P12,
+                    "P13": DAL.MICROBIT_ID_IO_P13,
+                    "P14": DAL.MICROBIT_ID_IO_P14,
+                    "P15": DAL.MICROBIT_ID_IO_P15,
+                    "P16": DAL.MICROBIT_ID_IO_P16,
+                    "P19": DAL.MICROBIT_ID_IO_P19
                 }
             });
             this.builtinParts["radio"] = this.radioState = new RadioState(runtime, {
                 ID_RADIO: DAL.MICROBIT_ID_RADIO,
                 RADIO_EVT_DATAGRAM: DAL.MICROBIT_RADIO_EVT_DATAGRAM
             });
-            // this.builtinParts["microphone"] = this.microphoneState = new AnalogSensorState(3001 /* DEVICE_ID_MICROPHONE */, 52, 120, 75, 96);
+            this.builtinParts["microphone"] = this.microphoneState = new AnalogSensorState(3001 /* DEVICE_ID_MICROPHONE */, 52, 120, 75, 96);
             this.builtinParts["accelerometer"] = this.accelerometerState = new AccelerometerState(runtime);
             this.builtinParts["serial"] = this.serialState = new SerialState();
             this.builtinParts["thermometer"] = this.thermometerState = new ThermometerState();
             this.builtinParts["lightsensor"] = this.lightSensorState = new LightSensorState();
             this.builtinParts["compass"] = this.compassState = new CompassState();
-            // this.builtinParts["neopixel"] = this.neopixelState = new NeoPixelState();
-            this.builtinParts["speaker"] = this.speakerState = new SpeakerState();
             this.builtinParts["microservo"] = this.edgeConnectorState;
 
             this.builtinVisuals["buttonpair"] = () => new visuals.ButtonPairView();
             this.builtinVisuals["ledmatrix"] = () => new visuals.LedMatrixView();
-            // this.builtinVisuals["neopixel"] = () => new visuals.NeoPixelView();
             this.builtinVisuals["microservo"] = () => new visuals.MicroServoView();
 
-            // this.builtinParts["neopixel"] = (pin: Pin) => { return this.neopixelState(pin.id); };
-            // this.builtinVisuals["neopixel"] = () => new visuals.NeoPixelView(pxsim.parsePinString);
-            // this.builtinPartVisuals["neopixel"] = (xy: visuals.Coord) => visuals.mkNeoPixelPart(xy);
+            this.builtinParts["neopixel"] = (pin: Pin) => { return this.neopixelState(pin.id); };
+            this.builtinVisuals["neopixel"] = () => new visuals.NeoPixelView(pxsim.parsePinString);
+            this.builtinPartVisuals["neopixel"] = (xy: visuals.Coord) => visuals.mkNeoPixelPart(xy);
 
             this.builtinPartVisuals["buttonpair"] = (xy: visuals.Coord) => visuals.mkBtnSvg(xy);
             this.builtinPartVisuals["ledmatrix"] = (xy: visuals.Coord) => visuals.mkLedMatrixSvg(xy, 8, 8);
-            // this.builtinPartVisuals["neopixel"] = (xy: visuals.Coord) => visuals.mkNeoPixelPart(xy);
             this.builtinPartVisuals["microservo"] = (xy: visuals.Coord) => visuals.mkMicroServoPart(xy);
         }
 
@@ -122,8 +128,6 @@ namespace pxsim {
 
         initAsync(msg: SimulatorRunMessage): Promise<void> {
             super.initAsync(msg);
-
-            const options = (msg.options || {}) as RuntimeOptions;
 
             const boardDef = msg.boardDefinition;
             const cmpsList = msg.parts;
@@ -150,6 +154,19 @@ namespace pxsim {
             document.body.appendChild(this.view = this.viewHost.getView());
 
             return Promise.resolve();
+        }
+
+        tryGetNeopixelState(pinId: number): CommonNeoPixelState {
+            return this.lightState[pinId];
+        }
+
+        neopixelState(pinId: number): CommonNeoPixelState {
+            if (pinId === undefined) {
+                pinId = DAL.MICROBIT_ID_IO_P0;
+            }
+            let state = this.lightState[pinId];
+            if (!state) state = this.lightState[pinId] = new CommonNeoPixelState();
+            return state;
         }
 
         screenshotAsync(width?: number): Promise<ImageData> {
@@ -190,4 +207,14 @@ namespace pxsim {
         return runtime.board as DalBoard;
     }
 
+    export function parsePinString(gpioPin: string): Pin {
+        if (gpioPin == "*")
+            return board().edgeConnectorState.getPin(DAL.MICROBIT_ID_IO_P0);
+
+        const m = /^(Analog|Digital)Pin\.P(\d)+/.exec(gpioPin);
+        if (!m)
+            return undefined;
+        const pinNum = parseInt(m[2]);
+        return board().edgeConnectorState.pins[pinNum]
+    }
 }

@@ -1339,8 +1339,10 @@ namespace pxsim.visuals {
             let state = this.board;
             if (!state || !state.accelerometerState.accelerometer.isActive) return;
 
-            const x = state.accelerometerState.accelerometer.getX();
-            const y = -state.accelerometerState.accelerometer.getY();
+            const acc = state.accelerometerState.accelerometer;
+            const x = acc.getX();
+            const y = -acc.getY();
+            const z = acc.getZ();
             const af = 8 / 1023;
             const s = 1 - Math.min(0.1, Math.pow(Math.max(Math.abs(x), Math.abs(y)) / 1023, 2) / 35);
 
