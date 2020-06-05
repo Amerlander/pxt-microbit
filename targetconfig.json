@@ -199,8 +199,13 @@
             "MakeAndLearn/pxt-microshield",
             "4tronix/Orbit",
             "elecfreaks/pxt-TPBot",
+            "longan-link/pxt-longanbit",
             "CODOmicrobit/pxt-CODO",
-            "KitronikLtd/pxt-kitronik-move-motor"
+            "KitronikLtd/pxt-kitronik-move-motor",
+            "elecfreaks/pxt-PlanetX",
+            "elecfreaks/pxt-nezha",
+            "philipphenkel/pxt-powerfunctions",
+            "1010Technologies/pxt-makerbit-ir-transmitter"
         ],
         "preferredRepos": [
             "Microsoft/pxt-neopixel",
