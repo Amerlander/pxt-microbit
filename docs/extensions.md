@@ -180,7 +180,11 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
 }, {
   "name": "Keyestudio Robot Car",
   "url":"/pkg/Veilkrand/pxt-RobotCar",
-  "cardType": "package"  
+  "cardType": "package"
+},  {
+  "name": "LEGO Powerfunctions",
+  "url":"/pkg/philipphenkel/pxt-powerfunctions",
+  "cardType": "package"
 }]
 ```
 
@@ -248,6 +252,11 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
 
 ```codecard
 [{
+  "name": "Elecfreaks PlanetX sensor kit",
+  "url":"/pkg/elecfreaks/pxt-PlanetX",
+  "cardType": "package"
+},
+{
   "name": "Inksmith Climate Action Kit",
   "url":"/pkg/dugbraden/pxt-climate-action-kit",
   "cardType": "package"
@@ -366,6 +375,10 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
    "url": "/pkg/Freenove/Makecode-Extension-Starter-Kit",
    "cardType": "package"
 }, {
+   "name": "Elite Longanbit",
+   "url": "/pkg/longan-link/pxt-longanbit",
+   "cardType": "package"
+}, {
   "name": "Adafruit Crickit",
   "url": "/pkg/adafruit/pxt-crickit",
   "cardType": "package"
@@ -472,6 +485,10 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
 }, {
     "name": "MakerBit Touch MPR121",
     "url": "/pkg/1010Technologies/pxt-makerbit-touch",
+    "cardType": "package"
+}, {
+    "name": "Keyestudio Infrared Transmitter",
+    "url": "/pkg/1010Technologies/pxt-makerbit-ir-transmitter",
     "cardType": "package"
 }, {
     "name": "Keyestudio Infrared Receiver",
@@ -629,6 +646,10 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
 }, {
     "name": "Keigan Motor",
     "url": "/pkg/keigan-motor/pxt-KeiganMotor",
+    "cardType": "package"
+}, {
+    "name": "Elecfreaks NeZha",
+    "url": "/pkg/elecfreaks/pxt-nezha",
     "cardType": "package"
 }]
 ```
