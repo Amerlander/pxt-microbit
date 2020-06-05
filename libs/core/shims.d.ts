@@ -177,8 +177,7 @@ declare namespace basic {
      */
     //% help=basic/clear-screen weight=79
     //% blockId=device_clear_display block="clear screen"
-    //% parts="ledmatrix"
-    //% advanced=true shim=basic::clearScreen
+    //% parts="ledmatrix" shim=basic::clearScreen
     function clearScreen(): void;
 
     /**
