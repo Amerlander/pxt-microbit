@@ -8,6 +8,16 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
 
 ```codecard
 [{
+  "name": "Kitronik :MOVE Motor",
+  "url":"/pkg/KitronikLtd/pxt-kitronik-move-motor",
+  "cardType": "package"
+},
+{
+  "name": "A4 Technologies CODO",
+  "url":"/pkg/CODOmicrobit/pxt-CODO",
+  "cardType": "package"
+},
+{
   "name": "Strawbees Robotic Inventions Kit",
   "url":"/pkg/strawbees/pxt-robotic-inventions",
   "cardType": "package"
@@ -238,6 +248,11 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
 
 ```codecard
 [{
+  "name": "Elecfreaks PlanetX sensor kit",
+  "url":"/pkg/elecfreaks/pxt-PlanetX",
+  "cardType": "package"
+},
+{
   "name": "Inksmith Climate Action Kit",
   "url":"/pkg/dugbraden/pxt-climate-action-kit",
   "cardType": "package"
@@ -619,6 +634,10 @@ Check out [microbit.org](http://microbit.org/resellers/) for more information on
 }, {
     "name": "Keigan Motor",
     "url": "/pkg/keigan-motor/pxt-KeiganMotor",
+    "cardType": "package"
+}, {
+    "name": "Elecfreaks NeZha",
+    "url": "/pkg/elecfreaks/pxt-nezha",
     "cardType": "package"
 }]
 ```

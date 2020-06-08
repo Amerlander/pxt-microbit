@@ -171,7 +171,11 @@
             "CytronTechnologies/pxt-edubit",
             "MakeAndLearn/pxt-microshield",
             "4tronix/Orbit",
-            "elecfreaks/pxt-TPBot"
+            "elecfreaks/pxt-TPBot",
+            "CODOmicrobit/pxt-CODO",
+            "KitronikLtd/pxt-kitronik-move-motor",
+            "elecfreaks/pxt-PlanetX",
+            "elecfreaks/pxt-nezha"
         ],
         "preferredRepos": [
             "Microsoft/pxt-neopixel",
@@ -200,7 +204,8 @@
         "Courses": "courses",
         "Behind the MakeCode Hardware": "behind-the-makecode-hardware",
         "Science Experiments": "science-experiments",
-        "Coding Cards": "coding-cards"
+        "Coding Cards": "coding-cards",
+        "Beta Deep Dive": "beta-deep-dive"
     },
     "electronManifest": {
         "latest": "v2.0.3"

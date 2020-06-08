@@ -44,6 +44,8 @@
         "utf8": false,
         "gc": true,
         "imageRefTag": 9,
+        "shimRenames": {
+        },
         "patches": {
             "0.0.0 - 1.0.0": [
                 {
@@ -337,7 +339,8 @@
         "extendEditor": true,
         "extendFieldEditors": true,
         "enableTrace": true,
-        "ignoreDocsErrors": true,
+        "ignoreDocsErrors": false,
+        "errorList": true,
         "experiments": [
             "autoWebUSBDownload",
             "allowPackageExtensions",
@@ -347,8 +350,7 @@
             "bluetoothUartConsole",
             "bluetoothPartialFlashing",
             "simScreenshot",
-            "simGif",
-            "errorList"
+            "simGif"
         ],
         "bluetoothUartFilters": [
             {
@@ -506,7 +508,8 @@
         },
         "browserDbPrefixes": {
             "1": "v1",
-            "2": "v2"
+            "2": "v2",
+            "3": "v3"
         },
         "editorVersionPaths": {
             "0": "v0"
