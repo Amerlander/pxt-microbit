@@ -172,7 +172,7 @@ enum MusicEvent {
 /**
  * Generation of music tones.
  */
-//% color=#E63022 weight=106 icon="\uf025"
+//% color=#DF4600 weight=98 icon="\uf025"
 //% groups='["Melody", "Tone", "Volume", "Tempo", "Melody Advanced"]'
 namespace music {
     const INTERNAL_MELODY_ENDED = 5;
@@ -200,7 +200,7 @@ namespace music {
     //% group="Tone"
     export function playTone(frequency: number, ms: number): void {
         if (_playTone) _playTone(frequency, ms);
-        else pins.analogPitch(frequency, ms);
+        else speakerPlayTone(frequency, ms);
     }
 
     /**
@@ -233,14 +233,14 @@ namespace music {
      * Gets the frequency of a note.
      * @param name the note name
      */
-    //% weight=50 help=music/note-frequency
+    //% weight=1 help=music/note-frequency
     //% blockId=device_note block="%name"
     //% shim=TD_ID color="#FFFFFF" colorSecondary="#FFFFFF"
     //% name.fieldEditor="note" name.defl="262"
     //% name.fieldOptions.decompileLiterals=true
     //% useEnumVal=1
     //% group="Tone"
-    //% blockGap=8
+    //% weight=10 blockGap=8
     export function noteFrequency(name: Note): number {
         return name;
     }
