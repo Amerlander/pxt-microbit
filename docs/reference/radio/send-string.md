@@ -4,7 +4,7 @@ Sends a string to other @boardname@s in the area connected by radio. The
 maximum string length is 19 characters.
 
 ```sig
-radio.sendString("Hello!")
+radio.sendString("hi!")
 ```
 
 ## Parameters
@@ -26,7 +26,7 @@ code word from one of them to the others by pressing button `A`.  The
 other @boardname@s will receive the code word and then show it.
 
 ```blocks
-input.onButtonPressed(Button.A, () => {
+input.onButtonEvent(Button.A, ButtonEvent.Click, () => {
     radio.sendString("Codeword: TRIMARAN")
     basic.showString("SENT");
 })

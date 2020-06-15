@@ -6,13 +6,13 @@ Learn how to use the LEDs and make a flashing heart!
 (Want to learn how lights work? [Watch this video](https://youtu.be/qqBmvHD5bCw)).
 
 
-![Heart shape in the LEDs](/static/mb/projects/flashing-heart/sim.gif)
+![Heart shape in the LEDs](/calliope/tutorials/01_flashing_heart_animation.gif)
 
 ## Step 1 @fullscreen
 
 Place the ``||basic:show leds||`` block in the ``||basic:forever||`` block and draw a heart.
 
-![An animation that shows how to drag a block and paint a heart](/static/mb/projects/flashing-heart/showleds.gif)
+![An animation that shows how to drag a block and paint a heart](/calliope/tutorials/add_show_led.gif)
 
 ## Step 2
 
@@ -38,6 +38,8 @@ basic.forever(function() {
 ## Step 3
 
 Look at the virtual @boardname@, you should see the heart and your drawing blink on the screen.
+
+![Heart shape in the LEDs](/calliope/tutorials/01_flashing_heart_animation.gif)
 
 ## Step 4
 
