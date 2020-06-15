@@ -24,7 +24,7 @@ namespace basic {
 
     /**
      * Display text on the display, one character at a time. If the string fits on the screen (i.e. is one letter), does not scroll.
-     * @param text the text to scroll on the screen, eg: "Hello!"
+     * @param text the text to scroll on the screen, eg: "hi!"
      * @param interval how fast to shift characters; eg: 150, 100, 200, -100
      */
     //% help=basic/show-string
