@@ -10,7 +10,7 @@
         "libs/radio",
         "libs/devices",
         "libs/bluetooth",
-        "libs/servo",
+        "libs/radio-broadcast"
         "libs/radio-broadcast",
         "libs/microphone"
     ],
@@ -32,12 +32,12 @@
     "compile": {
         "isNative": false,
         "hasHex": true,
-        "deployDrives": "(MICROBIT|MBED)",
-        "driveName": "MICROBIT",
-        "hexMimeType": "application/x-microbit-hex",
+        "deployDrives": "MINI",
+        "driveName": "MINI",
+        "hexMimeType": "application/x-calliope-hex",
         "openocdScript": "source [find interface/cmsis-dap.cfg]; source [find target/nrf51.cfg]",
-        "flashUsableEnd": 242688,
-        "flashEnd": 242688,
+        "flashUsableEnd": 245760,
+        "flashEnd": 245760,
         "flashCodeAlign": 1024,
         "floatingPoint": true,
         "taggedInts": true,
@@ -116,11 +116,11 @@
         "useNewFunctions": true
     },
     "compileService": {
-        "yottaTarget": "bbc-microbit-classic-gcc",
+        "yottaTarget": "calliope-mini-classic-gcc",
         "yottaCorePackage": "microbit",
-        "githubCorePackage": "lancaster-university/microbit",
-        "gittag": "v2.2.0-rc5",
-        "serviceId": "microbit",
+        "githubCorePackage": "Amerlander/microbit",
+        "gittag": "fetch04",
+        "serviceId": "calliope"
         "dockerImage": "pext/yotta:latest"
     },
     "multiVariants": [
@@ -181,7 +181,7 @@
                 }
             ]
         },
-        "onStartColor": "#1E90FF",
+        "onStartColor": "#54C9C9",
         "onStartNamespace": "basic",
         "onStartWeight": 54
     },
@@ -311,29 +311,30 @@
         "rawHID": true
     },
     "appTheme": {
-        "accentColor": "#5C005C",
-        "logoUrl": "https://microbit.org/",
-        "logo": "./static/logo.portrait.white.svg",
-        "docsLogo": "./static/logo.square.white.svg",
-        "portraitLogo": "./static/logo.square.white.svg",
-        "footerLogo": "./static/logo.portrait.black.svg",
+        "accentColor": "#249899",
+        "defaultLocale": "de",
+        "logoUrl": "https://calliope.cc/",
+        "logo": "./static/Calliopeminieditor.svg",
+        "docsLogo": "./static/Logo_Calliope_Woman.svg",
+        "portraitLogo": "./static/Logo_Calliope_Woman.svg",
+        "footerLogo": "./static/Calliopeminieditor.svg",
         "cardLogo": "./static/icons/apple-touch-icon.png",
         "appLogo": "./static/icons/apple-touch-icon.png",
         "organization": "Microsoft MakeCode",
         "organizationUrl": "https://makecode.com/",
         "organizationLogo": "./static/Microsoft-logo_rgb_c-gray-square.png",
         "organizationWideLogo": "./static/Microsoft-logo_rgb_c-white.png",
-        "homeScreenHero": "./static/hero.png",
-        "homeUrl": "https://makecode.microbit.org/",
-        "embedUrl": "https://makecode.microbit.org/",
-        "shareUrl": "https://makecode.microbit.org/",
-        "privacyUrl": "https://makecode.com/privacy",
-        "termsOfUseUrl": "https://makecode.com/termsofuse",
-        "githubUrl": "https://github.com/Microsoft/pxt-microbit",
-        "boardName": "micro:bit",
-        "boardNickname": "micro:bit",
-        "driveDisplayName": "MICROBIT",
-        "appStoreID": "1092687276",
+        "homeScreenHero": "./static/hero.jpg",
+        "homeUrl": "https://makecode.calliope.cc/",
+        "embedUrl": "https://makecode.calliope.cc/",
+        "shareUrl": "https://makecode.calliope.cc/",
+        "privacyUrl": "https://go.microsoft.com/fwlink/?LinkId=521839",
+        "termsOfUseUrl": "https://go.microsoft.com/fwlink/?LinkID=206977",
+        "githubUrl": "https://github.com/Microsoft/pxt-calliope",
+        "boardName": "Calliope mini",
+        "boardNickname": "mini",
+        "driveDisplayName": "MINI",
+        "appStoreID": "1309545545",
         "mobileSafariDownloadProtocol": "microbithex://?data",
         "crowdinProject": "kindscript",
         "extendEditor": true,
@@ -354,13 +355,13 @@
         ],
         "bluetoothUartFilters": [
             {
-                "namePrefix": "BBC micro:bit"
+                "namePrefix": "Calliope mini"
             }
         ],
         "docMenu": [
             {
                 "name": "Support",
-                "path": "https://support.microbit.org/"
+                "path": "https://calliope.cc/faq"
             },
             {
                 "name": "Reference",
@@ -459,13 +460,19 @@
             }
         },
         "blockColors": {
-            "logic": "#00A4A6",
-            "loops": "#00AA00",
-            "math": "#9400D3",
-            "variables": "#DC143C",
-            "text": "#B8860B",
-            "advanced": "#00272B",
-            "functions": "#3455DB",
+            "basic": "#54C9C9",
+            "input": "#C94600",
+            "music": "#DF4600",
+            "led": "#8169E6",
+            "radio": "#E3008C",
+            "motors": "#008272",
+            "logic": "#006970",
+            "loops": "#107C10",
+            "math": "#712672",
+            "variables": "#A80000",
+            "text": "#996600",
+            "advanced": "#42495f",
+            "functions": "#005A9E",
             "arrays": "#E65722"
         },
         "blocksCollapsing": true,
