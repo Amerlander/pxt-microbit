@@ -14,19 +14,22 @@
 *******************************/
 
 /* Roboto font */
-@RobotoFont: data-uri("../docs/static/fonts/Roboto_400_normal.woff");
+@RobotoMonoFont: data-uri("../docs/static/fonts/roboto-mono-v7-latin-regular.woff");
 
-@font-face  {
-    font-family: 'Roboto';
-    src: @RobotoFont format("woff");
-}
-
+/* roboto-mono-regular - latin */
+@font-face {
+    font-family: 'Roboto Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: @RobotoMonoFont format('woff');
+  }
 .ui.button.download-button {
     &:extend(.ui.purple.button all);
 }
 
-.ui.button.hw-button {
-    background-color: darken(@purple, 10%);
+.ui.button.download-button:hover {
+    background-color: #30a7a7;
+    color: white;
 }
 
 .docs.inlinebutton.ui.button.download-button:hover {
@@ -49,8 +52,11 @@
     &:extend(.ui.blue.button all);
 }
 
-#filelist, #editortools {
+#filelist, #editortools, .fullscreensim #boardview {
     background: #fff data-uri("../docs/static/logo_texture.png") 0 0 repeat !important;
+}
+.fullscreensim #mainmenu {
+    background: #1b1c1d !important;
 }
 
 #downloadArea {
@@ -60,11 +66,6 @@
 .ui.home {
     .getting-started-segment {
         background-position: 50% 25%;
-    }
-    .detailview .actions .card-action {
-        &:first-child .button.approve {
-            background-color: lighten(@primaryColor, 10%);
-        }
     }
 }
 
@@ -92,7 +93,6 @@
 /* Large Monitor */
 @media only screen and (min-width: @largeMonitorBreakpoint) {
 }
-
 
 /* Download dialog */
 .ui.downloaddialog.modal>.content {
