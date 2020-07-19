@@ -5,9 +5,9 @@
 Let's turn the @boardname@ into a dice!
 (Want to learn how the accelerometer works? [Watch this video](https://youtu.be/byngcwjO51U)).
 
-![A microbit dice](/static/mb/projects/dice.png)
+![A mini dice](/calliope/tutorials/04_dice_animation.gif)
 
-## Step 1
+## Step 1 @fullscreen
 
 We need 3 pieces of code: one to detect a throw (shake), another to pick a random number, and then one to show the number.
 
@@ -19,7 +19,7 @@ input.onGesture(Gesture.Shake, () => {
 })
 ```
 
-## Step 2
+## Step 2 @fullscreen
 
 Get a ``||basic:show number||`` block and place it inside the ``||input:on shake||`` block to display a number.
 
@@ -29,23 +29,23 @@ input.onGesture(Gesture.Shake, () => {
 })
 ```
 
-## Step 3
+## Step 3 @fullscreen
 
 Put a ``||Math:pick random||`` block in the ``||basic:show number||`` block to pick a random number.
 
 ```blocks
 input.onGesture(Gesture.Shake, () => {
-    basic.showNumber(randint(0, 10))
+    basic.showNumber(Math.randomRange(0, 10))
 })
 ```
 
-## Step 4
+## Step 4 @fullscreen
 
 A typical dice shows values from `1` to `6`. So, in ``||Math:pick random||``, don't forget to choose the right minimum and maximum values!
 
 ```blocks
 input.onGesture(Gesture.Shake, () => {
-    basic.showNumber(randint(1, 6))
+    basic.showNumber(Math.randomRange(1, 6))
 })
 ```
 
