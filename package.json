@@ -1,11 +1,12 @@
 {
-    "name": "pxt-microbit",
+    "name": "pxt-calliope",
     "version": "3.0.20",
     "description": "micro:bit target for Microsoft MakeCode (PXT)",
     "keywords": [
         "JavaScript",
         "education",
-        "microbit"
+        "calliope",
+        "mini"
     ],
     "repository": {
         "type": "git",

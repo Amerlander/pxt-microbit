@@ -1,9 +1,9 @@
 {
-    "id": "microbit",
-    "nickname": "microbit",
-    "name": "makecode.microbit.org",
-    "title": "Microsoft MakeCode for micro:bit",
-    "description": "A Blocks / JavaScript code editor for the micro:bit powered by Microsoft MakeCode.",
+    "id": "calliopemini",
+    "nickname": "mini",
+    "name": "makecode.calliope.cc",
+    "title": "Microsoft MakeCode for Calliope mini",
+    "description": "A Blocks / JavaScript code editor for the Calliope mini powered by Microsoft MakeCode.",
     "corepkg": "core",
     "bundleddirs": [
         "libs/core",
@@ -32,8 +32,8 @@
     "compile": {
         "isNative": false,
         "hasHex": true,
-        "deployDrives": "(MICROBIT|MBED)",
-        "driveName": "MICROBIT",
+        "deployDrives": "MINI",
+        "driveName": "MINI",
         "hexMimeType": "application/x-microbit-hex",
         "openocdScript": "source [find interface/cmsis-dap.cfg]; source [find target/nrf51.cfg]",
         "flashUsableEnd": 242688,
@@ -181,7 +181,7 @@
                 }
             ]
         },
-        "onStartColor": "#1E90FF",
+        "onStartColor": "#54C9C9",
         "onStartNamespace": "basic",
         "onStartWeight": 54
     },
