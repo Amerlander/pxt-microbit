@@ -17,6 +17,8 @@ namespace pxsim {
         radioState: RadioState;
         microphoneState: AnalogSensorState;
         lightState: pxt.Map<CommonNeoPixelState>;
+        rgbLedState: number;
+        speakerState: SpeakerState;
         fileSystem: FileSystemState;
 
         // visual
@@ -59,27 +61,14 @@ namespace pxsim {
                     0,
                     0,
                     DAL.MICROBIT_ID_IO_P19,
-                    DAL.MICROBIT_ID_IO_P20
+                    DAL.MICROBIT_ID_IO_P20,
+                    DAL.MICROBIT_ID_IO_P21
                 ],
                 servos: {
-                    "P0": DAL.MICROBIT_ID_IO_P0,
-                    "P1": DAL.MICROBIT_ID_IO_P1,
-                    "P2": DAL.MICROBIT_ID_IO_P2,
-                    "P3": DAL.MICROBIT_ID_IO_P3,
-                    "P4": DAL.MICROBIT_ID_IO_P4,
-                    "P5": DAL.MICROBIT_ID_IO_P5,
-                    "P6": DAL.MICROBIT_ID_IO_P6,
-                    "P7": DAL.MICROBIT_ID_IO_P7,
-                    "P8": DAL.MICROBIT_ID_IO_P8,
-                    "P9": DAL.MICROBIT_ID_IO_P9,
-                    "P10": DAL.MICROBIT_ID_IO_P10,
-                    "P11": DAL.MICROBIT_ID_IO_P11,
-                    "P12": DAL.MICROBIT_ID_IO_P12,
-                    "P13": DAL.MICROBIT_ID_IO_P13,
-                    "P14": DAL.MICROBIT_ID_IO_P14,
-                    "P15": DAL.MICROBIT_ID_IO_P15,
-                    "P16": DAL.MICROBIT_ID_IO_P16,
-                    "P19": DAL.MICROBIT_ID_IO_P19
+                    "P0": DAL.MICROBIT_ID_IO_P12,
+                    "P1": DAL.MICROBIT_ID_IO_P0,
+                    "P2": DAL.MICROBIT_ID_IO_P1,
+                    "P3": DAL.MICROBIT_ID_IO_P16
                 }
             });
             this.builtinParts["radio"] = this.radioState = new RadioState(runtime, {
@@ -92,6 +81,7 @@ namespace pxsim {
             this.builtinParts["thermometer"] = this.thermometerState = new ThermometerState();
             this.builtinParts["lightsensor"] = this.lightSensorState = new LightSensorState();
             this.builtinParts["compass"] = this.compassState = new CompassState();
+            this.builtinParts["speaker"] = this.speakerState = new SpeakerState();
             this.builtinParts["microservo"] = this.edgeConnectorState;
 
             this.builtinVisuals["buttonpair"] = () => new visuals.ButtonPairView();

@@ -39,6 +39,8 @@
         "game.ts",
         "led.cpp",
         "led.ts",
+        "motors.cpp",
+        "music.cpp",
         "music.ts",
         "melodies.ts",
         "pins.cpp",
@@ -55,7 +57,10 @@
         "sendbuffer.s",
         "light.cpp",
         "parts/speaker.svg",
-        "parts/headphone.svg"
+        "parts/headphone.svg",
+        "parts/dcmotor.svg",
+        "_locales/de/core-jsdoc-strings.json",
+        "_locales/de/core-strings.json"
     ],
     "testFiles": [],
     "public": true,
