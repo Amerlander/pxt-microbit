@@ -82,6 +82,7 @@ MicroBitPin *getPin(int id) {
         case MICROBIT_ID_IO_P16: return &uBit.io.P16;
         case MICROBIT_ID_IO_P19: return &uBit.io.P19;
         case MICROBIT_ID_IO_P20: return &uBit.io.P20;
+        case MICROBIT_ID_IO_P21: return &uBit.io.P21;
 #if MICROBIT_CODAL
         case 1001: return &uBit.io.usbTx;
         case 1002: return &uBit.io.usbRx;
@@ -234,6 +235,17 @@ namespace pins {
         return end - start;
     }
 
+    // TODO FIX THIS IN THE DAL!
+    inline void fixMotorIssue(AnalogPin name) {
+        NRF_TIMER2->SHORTS = TIMER_SHORTS_COMPARE3_CLEAR_Msk;
+        NRF_TIMER2->INTENCLR = TIMER_INTENCLR_COMPARE3_Msk;
+        NRF_TIMER2->PRESCALER = 4;
+        NRF_TIMER2->CC[3] = 20000;
+        NRF_TIMER2->TASKS_START = 1;
+        NRF_TIMER2->EVENTS_COMPARE[3] = 0;
+        PINOP(getDigitalValue());
+    }
+
     /**
      * Write a value to the servo, controlling the shaft accordingly. On a standard servo, this will set the angle of the shaft (in degrees), moving the shaft to that orientation. On a continuous rotation servo, this will set the speed of the servo (with ``0`` being full-speed in one direction, ``180`` being full speed in the other, and a value near ``90`` being no movement).
      * @param name pin to write to, eg: AnalogPin.P0
@@ -246,6 +258,7 @@ namespace pins {
     //% name.fieldEditor="gridpicker" name.fieldOptions.columns=4
     //% name.fieldOptions.tooltips="false" name.fieldOptions.width="250"
     void servoWritePin(AnalogPin name, int value) {
+        fixMotorIssue(name);
         PINOP(setServoValue(value));
     }
 
@@ -267,6 +280,7 @@ namespace pins {
     //% value.fieldEditor="gridpicker" value.fieldOptions.columns=4
     //% value.fieldOptions.tooltips="false" value.fieldOptions.width="250"
     void servoSetPulse(AnalogPin name, int micros) {
+        fixMotorIssue(name);
         PINOP(setServoPulseUs(micros));
     }
 
