@@ -818,7 +818,7 @@ declare const enum DAL {
     MICROBIT_DFU_HISTOGRAM_WIDTH = 5,
     MICROBIT_DFU_HISTOGRAM_HEIGHT = 5,
     // /libraries/codal-microbit/inc/bluetooth/MicroBitIOPinService.h
-    MICROBIT_IO_PIN_SERVICE_PINCOUNT = 19,
+    MICROBIT_IO_PIN_SERVICE_PINCOUNT = 20,
     MICROBIT_IO_PIN_SERVICE_DATA_SIZE = 10,
     MICROBIT_PWM_PIN_SERVICE_DATA_SIZE = 2,
     // /libraries/codal-microbit/inc/bluetooth/MicroBitLEDService.h
@@ -952,6 +952,7 @@ declare const enum DAL {
     MICROBIT_ID_IO_P16 = 116,
     MICROBIT_ID_IO_P19 = 119,
     MICROBIT_ID_IO_P20 = 120,
+    MICROBIT_ID_IO_P21 = 121, 
     MICROBIT_ID_MESSAGE_BUS_LISTENER = 1021,
     MICROBIT_ID_MULTIBUTTON_ATTACH = 11,
     MICROBIT_ID_NOTIFY = 1023,
@@ -967,6 +968,8 @@ declare const enum DAL {
     MICROBIT_COMPASS_STATUS_ADDED_TO_IDLE = 8,
     // /libraries/codal-microbit/model/MicroBit.h
     DEVICE_INITIALIZED = 1,
+     // /libraries/codal-microbit/model/MicroBitCompass.h
+    //CALLIOPE_PIN_ACCEL_INT = 21,
     // /libraries/codal-microbit/model/MicroBitIO.h
     MICROBIT_PIN_BUTTON_RESET = -1,
     ID_PIN_P0 = 100,

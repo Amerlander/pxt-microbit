@@ -715,6 +715,7 @@ namespace pxsim.visuals {
         runtime?: pxsim.Runtime;
         theme?: IBoardTheme;
         wireframe?: boolean;
+        disableTilt?: boolean;
     }
 
     export class MicrobitBoardSvg implements BoardView {
@@ -996,7 +997,6 @@ namespace pxsim.visuals {
         private updateTheme() {
             let theme = this.props.theme;
 
-            svg.fill(this.display, theme.display);
             svg.fills(this.leds, theme.ledOn);
             svg.fills(this.ledsOuter, theme.ledOff);
             svg.fills(this.buttonsOuter.slice(0, 2), theme.buttonOuter);
@@ -1004,7 +1004,6 @@ namespace pxsim.visuals {
             svg.fill(this.buttons[1], theme.buttonUps[1]);
             svg.fill(this.buttonsOuter[2], theme.virtualButtonOuter);
             svg.fill(this.buttons[2], theme.virtualButtonUp);
-            svg.fills(this.logos, theme.accent);
             if (this.shakeButton) svg.fill(this.shakeButton, theme.virtualButtonUp);
 
             this.pinGradients.forEach(lg => svg.setGradientColors(lg, theme.pin, theme.pinActive));
@@ -1118,6 +1117,33 @@ namespace pxsim.visuals {
             }
         }
 
+        private updateRSSI() {
+            let state = this.board;
+            if (!state) return;
+            const v = state.radioState.datagram.rssi;
+            if (v === undefined) return;
+
+            if (!this.rssi) {
+                let ax = 380;
+                let dax = 18;
+                let ayt = 10;
+                let ayb = 40;
+                const wh = dax * 5;
+                for (let i = 0; i < 4; ++i)
+                    svg.child(this.g, "rect", { x: ax - 90 + i * 6, y: ayt + 28 - i * 4, width: 4, height: 2 + i * 4, fill: "#fff" })
+                this.rssi = svg.child(this.g, "text", { x: ax - 64, y: ayb, class: "sim-text" }) as SVGTextElement;
+                this.rssi.textContent = "";
+            }
+
+            const vt = v.toString();
+            if (vt !== this.rssi.textContent) {
+                this.rssi.textContent = v.toString();
+                this.antenna.setAttribute("aria-valuenow", this.rssi.textContent);
+                accessibility.setLiveContent(this.rssi.textContent);
+            }
+        }
+
+
         private updatePin(pin: Pin, index: number) {
             if (!pin) return;
             let text = this.pinTexts[pin.id];
@@ -1177,51 +1203,18 @@ namespace pxsim.visuals {
 
                 let pt = this.element.createSVGPoint();
                 svg.buttonEvents(this.thermometer,
-                    // move
                     (ev) => {
                         let cur = svg.cursorPoint(pt, this.element, ev);
-                        let t = Math.max(0, Math.min(1, (260 - cur.y) / 140))
-                        state.thermometerState.temperature = Math.floor(tmin + t * (tmax - tmin));
+                        let t = Math.max(0, Math.min(1, (cur.y - ty - 5) / 70))
+                        state.thermometerState.temperature = Math.floor(tmax - t * (tmax - tmin));
                         this.updateTemperature();
-                    },
-                    // start
-                    ev => { },
-                    // stop
-                    ev => { },
-                    // keydown
-                    (ev) => {
-                        let charCode = (typeof ev.which == "number") ? ev.which : ev.keyCode
-                        if (charCode === 40 || charCode === 37) { // Down/Left arrow
-                            state.thermometerState.temperature--;
-                            if (state.thermometerState.temperature < -5) {
-                                state.thermometerState.temperature = 50;
-                            }
-                            this.updateTemperature();
-                        } else if (charCode === 38 || charCode === 39) { // Up/Right arrow
-                            state.thermometerState.temperature++;
-                            if (state.thermometerState.temperature > 50) {
-                                state.thermometerState.temperature = -5;
-                            }
-                            this.updateTemperature();
-                        }
-                    })
-
-                accessibility.makeFocusable(this.thermometer);
-                accessibility.setAria(this.thermometer, "slider", "Thermometer");
-                this.thermometer.setAttribute("aria-valuemin", "-5");
-                this.thermometer.setAttribute("aria-valuemax", "50");
-                this.thermometer.setAttribute("aria-orientation", "vertical");
-                this.thermometer.setAttribute("aria-valuenow", "21");
-                this.thermometer.setAttribute("aria-valuetext", "21°C");
+                    }, ev => { }, ev => { })
             }
 
             let t = Math.max(tmin, Math.min(tmax, state.thermometerState.temperature))
             let per = Math.floor((state.thermometerState.temperature - tmin) / (tmax - tmin) * 100)
             svg.setGradientValue(this.thermometerGradient, 100 - per + "%");
             this.thermometerText.textContent = t + "°C";
-            this.thermometer.setAttribute("aria-valuenow", t.toString());
-            this.thermometer.setAttribute("aria-valuetext", t + "°C");
-            accessibility.setLiveContent(t + "°C");
         }
 
         private updateHeading() {
@@ -1229,6 +1222,7 @@ namespace pxsim.visuals {
             let yc = 75;
             let state = this.board;
             if (!state || !state.compassState.usesHeading) return;
+            /*
             if (!this.headInitialized) {
                 let p = this.head.firstChild.nextSibling as SVGPathElement;
                 p.setAttribute("d", "m269.9,50.134647l0,0l-39.5,0l0,0c-14.1,0.1 -24.6,10.7 -24.6,24.8c0,13.9 10.4,24.4 24.3,24.7l0,0l39.6,0c14.2,0 40.36034,-22.97069 40.36034,-24.85394c0,-1.88326 -26.06034,-24.54606 -40.16034,-24.64606m-0.2,39l0,0l-39.3,0c-7.7,-0.1 -14,-6.4 -14,-14.2c0,-7.8 6.4,-14.2 14.2,-14.2l39.1,0c7.8,0 14.2,6.4 14.2,14.2c0,7.9 -6.4,14.2 -14.2,14.2l0,0l0,0z");
@@ -1249,15 +1243,13 @@ namespace pxsim.visuals {
             if (txt != this.headText.textContent) {
                 svg.rotateElement(this.head, xc, yc, state.compassState.heading + 180);
                 this.headText.textContent = txt;
-                if (this.props.runtime)
-                    this.props.runtime.environmentGlobals[pxsim.localization.lf("heading")] = state.compassState.heading;
-            }
+            } */
         }
 
         private lastFlashTime: number = 0;
         public flashSystemLed() {
             if (!this.systemLed)
-                this.systemLed = <SVGCircleElement>svg.child(this.g, "circle", { class: "sim-systemled", cx: 300, cy: 20, r: 5 })
+                this.systemLed = <SVGCircleElement>svg.child(this.g, "circle", { class: "sim-systemled", cx: 160.8, cy: 150.9, r: 4 })
             let now = Date.now();
             if (now - this.lastFlashTime > 150) {
                 this.lastFlashTime = now;
@@ -1268,65 +1260,16 @@ namespace pxsim.visuals {
         private lastAntennaFlash: number = 0;
         public flashAntenna() {
             if (!this.antenna) {
-                let ax = 380;
+                let ax = 480;
                 let dax = 18;
                 let ayt = 10;
                 let ayb = 40;
-                const wh = dax * 5;
-                const antenaBackground = svg.child(this.g, "rect", { x: ax, y: ayt, width: wh, height: ayb - ayt, fill: "transparent" });
                 this.antenna = <SVGPolylineElement>svg.child(this.g, "polyline", { class: "sim-antenna", points: `${ax},${ayb} ${ax},${ayt} ${ax += dax},${ayt} ${ax},${ayb} ${ax += dax},${ayb} ${ax},${ayt} ${ax += dax},${ayt} ${ax},${ayb} ${ax += dax},${ayb} ${ax},${ayt} ${ax += dax},${ayt}` })
-
-                const pt = this.element.createSVGPoint();
-                const evh = (ev: MouseEvent) => {
-                    const state = this.board;
-                    if (!state) return;
-                    const pos = svg.cursorPoint(pt, this.element, ev);
-                    const rs = Math.max(-128, Math.min(-42, (-138 + (pos.x - ax + wh) / wh * 100) | 0));
-                    this.board.radioState.datagram.rssi = rs;
-                    this.updateRSSI();
-                };
-                svg.buttonEvents(antenaBackground, evh, evh, evh, (ev) => { })
-                svg.buttonEvents(this.antenna, evh, evh, evh, (ev) => { })
-
-                accessibility.makeFocusable(this.antenna);
-                accessibility.setAria(this.antenna, "slider", "RSSI");
-                this.antenna.setAttribute("aria-valuemin", "-128");
-                this.antenna.setAttribute("aria-valuemax", "-42");
-                this.antenna.setAttribute("aria-orientation", "horizontal");
-                this.antenna.setAttribute("aria-valuenow", "");
-                accessibility.setLiveContent("");
             }
             let now = Date.now();
             if (now - this.lastAntennaFlash > 200) {
                 this.lastAntennaFlash = now;
                 svg.animate(this.antenna, 'sim-flash-stroke')
-            }
-            this.updateRSSI();
-        }
-
-        private updateRSSI() {
-            let state = this.board;
-            if (!state) return;
-            const v = state.radioState.datagram.rssi;
-            if (v === undefined) return;
-
-            if (!this.rssi) {
-                let ax = 380;
-                let dax = 18;
-                let ayt = 10;
-                let ayb = 40;
-                const wh = dax * 5;
-                for (let i = 0; i < 4; ++i)
-                    svg.child(this.g, "rect", { x: ax - 90 + i * 6, y: ayt + 28 - i * 4, width: 4, height: 2 + i * 4, fill: "#fff" })
-                this.rssi = svg.child(this.g, "text", { x: ax - 64, y: ayb, class: "sim-text" }) as SVGTextElement;
-                this.rssi.textContent = "";
-            }
-
-            const vt = v.toString();
-            if (vt !== this.rssi.textContent) {
-                this.rssi.textContent = v.toString();
-                this.antenna.setAttribute("aria-valuenow", this.rssi.textContent);
-                accessibility.setLiveContent(this.rssi.textContent);
             }
         }
 
@@ -1344,16 +1287,16 @@ namespace pxsim.visuals {
             if (!this.lightLevelButton) {
                 let gid = "gradient-light-level";
                 this.lightLevelGradient = svg.linearGradient(this.defs, gid)
-                let cy = 50;
-                let r = 35;
+				const cx = 30;
+                const cy = 45;
+                const r = 20;
                 this.lightLevelButton = svg.child(this.g, "circle", {
-                    cx: `50px`, cy: `${cy}px`, r: `${r}px`,
-                    class: 'sim-light-level-button no-drag',
+                    cx: `${cx}px`, cy: `${cy}px`, r: `${r}px`,
+                    class: 'sim-light-level-button',
                     fill: `url(#${gid})`
                 }) as SVGCircleElement;
                 let pt = this.element.createSVGPoint();
                 svg.buttonEvents(this.lightLevelButton,
-                    // move
                     (ev) => {
                         let pos = svg.cursorPoint(pt, this.element, ev);
                         let rs = r / 2;
@@ -1362,39 +1305,10 @@ namespace pxsim.visuals {
                             this.board.lightSensorState.lightLevel = level;
                             this.applyLightLevel();
                         }
-                    },
-                    // start
-                    ev => { },
-                    // stop
-                    ev => { },
-                    // keydown
-                    (ev) => {
-                        let charCode = (typeof ev.which == "number") ? ev.which : ev.keyCode
-                        if (charCode === 40 || charCode === 37) { // Down/Left arrow
-                            this.board.lightSensorState.lightLevel--;
-                            if (this.board.lightSensorState.lightLevel < 0) {
-                                this.board.lightSensorState.lightLevel = 255;
-                            }
-                            this.applyLightLevel();
-                        } else if (charCode === 38 || charCode === 39) { // Up/Right arrow
-                            this.board.lightSensorState.lightLevel++;
-                            if (this.board.lightSensorState.lightLevel > 255) {
-                                this.board.lightSensorState.lightLevel = 0;
-                            }
-                            this.applyLightLevel();
-                        }
-                    });
-                this.lightLevelText = svg.child(this.g, "text", { x: 85, y: cy + r - 5, text: '', class: 'sim-text' }) as SVGTextElement;
-                if (this.props.runtime)
-                    this.props.runtime.environmentGlobals[pxsim.localization.lf("lightLevel")] = state.lightSensorState.lightLevel;
+                    }, ev => { },
+                    ev => { })
+                this.lightLevelText = svg.child(this.g, "text", { x: cx - r - 7, y: cy + r + 8, text: '', class: 'sim-text inverted' }) as SVGTextElement;
                 this.updateTheme();
-
-                accessibility.makeFocusable(this.lightLevelButton);
-                accessibility.setAria(this.lightLevelButton, "slider", "Light level");
-                this.lightLevelButton.setAttribute("aria-valuemin", "0");
-                this.lightLevelButton.setAttribute("aria-valuemax", "255");
-                this.lightLevelButton.setAttribute("aria-orientation", "vertical");
-                this.lightLevelButton.setAttribute("aria-valuenow", "128");
             }
 
             svg.setGradientValue(this.lightLevelGradient, Math.min(100, Math.max(0, Math.floor(state.lightSensorState.lightLevel * 100 / 255))) + '%')
@@ -1405,69 +1319,26 @@ namespace pxsim.visuals {
             let lv = this.board.lightSensorState.lightLevel;
             svg.setGradientValue(this.lightLevelGradient, Math.min(100, Math.max(0, Math.floor(lv * 100 / 255))) + '%')
             this.lightLevelText.textContent = lv.toString();
-            this.lightLevelButton.setAttribute("aria-valuenow", lv.toString());
-            accessibility.setLiveContent(lv.toString());
-        }
-
-        findParentElement() {
-            let el = this.element;
-            while (el.parentNode && el.parentNode.nodeName == "svg")
-                el = el.parentNode as SVGSVGElement;
-            return el;
         }
 
         private updateTilt() {
-            const state = this.board;
+            if (this.props.disableTilt) return;
+            let state = this.board;
             if (!state || !state.accelerometerState.accelerometer.isActive) return;
 
-            const acc = state.accelerometerState.accelerometer;
-            const x = acc.getX();
-            const y = -acc.getY();
-            const z = acc.getZ();
+            const x = state.accelerometerState.accelerometer.getX();
+            const y = -state.accelerometerState.accelerometer.getY();
             const af = 8 / 1023;
             const s = 1 - Math.min(0.1, Math.pow(Math.max(Math.abs(x), Math.abs(y)) / 1023, 2) / 35);
 
-            acc.updateEnvironmentGlobals();
-
-            // fix top parent and apply style to it
-            const el = this.findParentElement();
-            el.style.transform = `perspective(30em) rotateX(${y * af}deg) rotateY(${x * af}deg) scale(${s}, ${s})`
-            el.style.perspectiveOrigin = "50% 50% 50%";
-            el.style.perspective = "30em";
-
-            // don't display acc data when AB is on
-            if (state.buttonPairState.usesButtonAB) {
-                if (this.accTextX) this.accTextX.textContent = "";
-                if (this.accTextY) this.accTextY.textContent = "";
-                if (this.accTextZ) this.accTextZ.textContent = "";
-            } else {
-                // update text
-                if (acc.flags & AccelerometerFlag.X) {
-                    if (!this.accTextX) {
-                        this.accTextX = svg.child(this.g, "text", { x: 365, y: 260, class: "sim-text" }) as SVGTextElement;
-                        this.accTextX.textContent = "";
-                    }
-                    this.accTextX.textContent = `ax:${x}`;
-                }
-                if (acc.flags & AccelerometerFlag.Y) {
-                    if (!this.accTextY) {
-                        this.accTextY = svg.child(this.g, "text", { x: 365, y: 285, class: "sim-text" }) as SVGTextElement;
-                        this.accTextY.textContent = "";
-                    }
-                    this.accTextY.textContent = `ay:${-y}`;
-                }
-                if (acc.flags & AccelerometerFlag.Z) {
-                    if (!this.accTextZ) {
-                        this.accTextZ = svg.child(this.g, "text", { x: 365, y: 310, class: "sim-text" }) as SVGTextElement;
-                        this.accTextZ.textContent = "";
-                    }
-                    this.accTextZ.textContent = `az:${z}`;
-                }
-            }
+            this.element.style.transform = `perspective(30em) rotateX(${y * af}deg) rotateY(${x * af}deg) scale(${s}, ${s})`
+            
+            this.element.style.perspectiveOrigin = "50% 50% 50%";
+            this.element.style.perspective = "30em";
         }
 
         private buildDom() {
-            this.element = <SVGSVGElement>svg.elt("svg")
+			this.element = new DOMParser().parseFromString(BOARD_SVG, "image/svg+xml").querySelector("svg") as SVGSVGElement;
             svg.hydrate(this.element, {
                 "version": "1.0",
                 "viewBox": `0 0 ${MB_WIDTH} ${MB_HEIGHT}`,
@@ -1476,86 +1347,47 @@ namespace pxsim.visuals {
                 "y": "0px",
                 "width": MB_WIDTH + "px",
                 "height": MB_HEIGHT + "px",
-                "fill": "rgba(0,0,0,0)"
             });
             this.style = <SVGStyleElement>svg.child(this.element, "style", {});
-            this.style.textContent = MB_STYLE + (this.props.theme.highContrast ? MB_HIGHCONTRAST : "");
+            this.style.textContent = MB_STYLE;
 
             this.defs = <SVGDefsElement>svg.child(this.element, "defs", {});
             this.g = <SVGGElement>svg.elt("g");
             this.element.appendChild(this.g);
 
             // filters
-            let ledglow = svg.child(this.defs, "filter", { id: "ledglow", x: "-75%", y: "-75%", width: "300%", height: "300%" });
-            svg.child(ledglow, "feMorphology", { operator: "dilate", radius: "4", in: "SourceAlpha", result: "thicken" });
-            svg.child(ledglow, "feGaussianBlur", { stdDeviation: "5", in: "thicken", result: "blurred" });
-            svg.child(ledglow, "feFlood", { "flood-color": "rgb(255, 17, 77)", result: "glowColor" });
-            svg.child(ledglow, "feComposite", { in: "glowColor", in2: "blurred", operator: "in", result: "ledglow_colored" });
-            let ledglowMerge = svg.child(ledglow, "feMerge", {});
-            svg.child(ledglowMerge, "feMergeNode", { in: "ledglow_colored" });
-            svg.child(ledglowMerge, "feMergeNode", { in: "SourceGraphic" });
-
             let glow = svg.child(this.defs, "filter", { id: "filterglow", x: "-5%", y: "-5%", width: "120%", height: "120%" });
             svg.child(glow, "feGaussianBlur", { stdDeviation: "5", result: "glow" });
             let merge = svg.child(glow, "feMerge", {});
             for (let i = 0; i < 3; ++i) svg.child(merge, "feMergeNode", { in: "glow" })
 
-            // outline
-            const pkg = svg.path(this.g, "sim-board", "M498,31.9C498,14.3,483.7,0,466.1,0H31.9C14.3,0,0,14.3,0,31.9v342.2C0,391.7,14.3,406,31.9,406h434.2c17.6,0,31.9-14.3,31.9-31.9V31.9z M14.3,206.7c-2.7,0-4.8-2.2-4.8-4.8c0-2.7,2.2-4.8,4.8-4.8c2.7,0,4.8,2.2,4.8,4.8C19.2,204.6,17,206.7,14.3,206.7z M486.2,206.7c-2.7,0-4.8-2.2-4.8-4.8c0-2.72.2-4.8,4.8-4.8c2.7,0,4.8,2.2,4.8,4.8C491,204.6,488.8,206.7,486.2,206.7z");
-            svg.hydrate(pkg, { fill: "#111" });
-
-            // script background
-            this.display = svg.path(this.g, "sim-display", "M333.8,310.3H165.9c-8.3,0-15-6.7-15-15V127.5c0-8.3,6.7-15,15-15h167.8c8.3,0,15,6.7,15,15v167.8C348.8,303.6,342.1,310.3,333.8,310.3z");
-            svg.hydrate(this.display, { fill: "#111" });
-
-            this.logos = [];
-            this.logos.push(svg.child(this.g, "polygon", { class: "sim-theme", points: "115,56.7 173.1,0 115,0" }));
-            this.logos.push(svg.path(this.g, "sim-theme", "M114.2,0H25.9C12.1,2.1,0,13.3,0,27.7v83.9L114.2,0z"));
-            this.logos.push(svg.child(this.g, "polygon", { class: "sim-theme", points: "173,27.9 202.5,0 173,0" }));
-            this.logos.push(svg.child(this.g, "polygon", { class: "sim-theme", points: "54.1,242.4 54.1,274.1 22.4,274.1" }));
-            this.logos.push(svg.child(this.g, "polygon", { class: "sim-theme", points: "446.2,164.6 446.2,132.8 477.9,132.8" }));
-
             // leds
             this.leds = [];
             this.ledsOuter = [];
-            let left = 154, top = 113, ledoffw = 46, ledoffh = 44;
+            const left = Number(this.element.getElementById("LED_0_0").getAttribute("x"));
+            const top = Number(this.element.getElementById("LED_0_0").getAttribute("y"));
+            const ledoffw = Number(this.element.getElementById("LED_1_0").getAttribute("x"))-left;
+            const ledoffh = Number(this.element.getElementById("LED_0_1").getAttribute("y"))-top;
+            const ledw = 5.1;
+            const ledh = 12.9;
             for (let i = 0; i < 5; ++i) {
                 let ledtop = i * ledoffh + top;
                 for (let j = 0; j < 5; ++j) {
                     let ledleft = j * ledoffw + left;
                     let k = i * 5 + j;
-                    this.ledsOuter.push(svg.child(this.g, "rect", { class: "sim-led-back", x: ledleft, y: ledtop, width: 10, height: 20, rx: 2, ry: 2 }));
-                    let led = svg.child(this.g, "rect", { class: "sim-led", x: ledleft - 2, y: ledtop - 2, width: 14, height: 24, rx: 3, ry: 3, title: `(${j},${i})` });
-                    svg.filter(led, `url(#ledglow)`)
-                    this.leds.push(led);
+                    this.ledsOuter.push(svg.child(this.g, "rect", { class: "sim-led-back", x: ledleft, y: ledtop, width: ledw, height: ledh }));
+                    this.leds.push(svg.child(this.g, "rect", { class: "sim-led", x: ledleft - 1, y: ledtop - 1, width: ledw + 2, height: ledh + 2, rx: 2, ry: 2, title: `(${j},${i})` }));
                 }
             }
 
-            // head
-            this.head = <SVGGElement>svg.child(this.g, "g", { class: "sim-head no-drag" });
-            svg.child(this.head, "circle", { cx: 258, cy: 75, r: 100, fill: "transparent" })
-            this.logos.push(svg.path(this.head, "sim-theme", "M269.9,50.2L269.9,50.2l-39.5,0v0c-14.1,0.1-24.6,10.7-24.6,24.8c0,13.9,10.4,24.4,24.3,24.7v0h39.6c14.2,0,24.8-10.6,24.8-24.7C294.5,61,284,50.3,269.9,50.2 M269.7,89.2L269.7,89.2l-39.3,0c-7.7-0.1-14-6.4-14-14.2c0-7.8,6.4-14.2,14.2-14.2h39.1c7.8,0,14.2,6.4,14.2,14.2C283.9,82.9,277.5,89.2,269.7,89.2"));
-            this.logos.push(svg.path(this.head, "sim-theme", "M230.6,69.7c-2.9,0-5.3,2.4-5.3,5.3c0,2.9,2.4,5.3,5.3,5.3c2.9,0,5.3-2.4,5.3-5.3C235.9,72.1,233.5,69.7,230.6,69.7"));
-            this.logos.push(svg.path(this.head, "sim-theme", "M269.7,80.3c2.9,0,5.3-2.4,5.3-5.3c0-2.9-2.4-5.3-5.3-5.3c-2.9,0-5.3,2.4-5.3,5.3C264.4,77.9,266.8,80.3,269.7,80.3"));
-            this.headText = <SVGTextElement>svg.child(this.g, "text", { x: 310, y: 100, class: "sim-text" })
-
             // https://www.microbit.co.uk/device/pins
             // P0, P1, P2
-            this.pins = [
-                "M16.5,341.2c0,0.4-0.1,0.9-0.1,1.3v60.7c4.1,1.7,8.6,2.7,12.9,2.7h34.4v-64.7h0.3c0,0,0-0.1,0-0.1c0-13-10.6-23.6-23.7-23.6C27.2,317.6,16.5,328.1,16.5,341.2z M21.2,341.6c0-10.7,8.7-19.3,19.3-19.3c10.7,0,19.3,8.7,19.3,19.3c0,10.7-8.6,19.3-19.3,19.3C29.9,360.9,21.2,352.2,21.2,341.6z",
-                "M139.1,317.3c-12.8,0-22.1,10.3-23.1,23.1V406h46.2v-65.6C162.2,327.7,151.9,317.3,139.1,317.3zM139.3,360.1c-10.7,0-19.3-8.6-19.3-19.3c0-10.7,8.6-19.3,19.3-19.3c10.7,0,19.3,8.7,19.3,19.3C158.6,351.5,150,360.1,139.3,360.1z",
-                "M249,317.3c-12.8,0-22.1,10.3-23.1,23.1V406h46.2v-65.6C272.1,327.7,261.8,317.3,249,317.3z M249.4,360.1c-10.7,0-19.3-8.6-19.3-19.3c0-10.7,8.6-19.3,19.3-19.3c10.7,0,19.3,8.7,19.3,19.3C268.7,351.5,260.1,360.1,249.4,360.1z"
-            ].map((p, pi) => svg.path(this.g, "sim-pin sim-pin-touch", p));
-
-            // P3
-            this.pins.push(svg.path(this.g, "sim-pin", "M0,357.7v19.2c0,10.8,6.2,20.2,14.4,25.2v-44.4H0z"));
-
-            pins4onXs.forEach(x => {
-                this.pins.push(svg.child(this.g, "rect", { x: x, y: 356.7, width: 10, height: 50, class: "sim-pin" }));
-            })
-            this.pins.push(svg.path(this.g, "sim-pin", "M483.6,402c8.2-5,14.4-14.4,14.4-25.1v-19.2h-14.4V402z"));
-            this.pins.push(svg.path(this.g, "sim-pin", "M359.9,317.3c-12.8,0-22.1,10.3-23.1,23.1V406H383v-65.6C383,327.7,372.7,317.3,359.9,317.3z M360,360.1c-10.7,0-19.3-8.6-19.3-19.3c0-10.7,8.6-19.3,19.3-19.3c10.7,0,19.3,8.7,19.3,19.3C379.3,351.5,370.7,360.1,360,360.1z"));
-            this.pins.push(svg.path(this.g, "sim-pin", "M458,317.6c-13,0-23.6,10.6-23.6,23.6c0,0,0,0.1,0,0.1h0V406H469c4.3,0,8.4-1,12.6-2.7v-60.7c0-0.4,0-0.9,0-1.3C481.6,328.1,471,317.6,458,317.6z M457.8,360.9c-10.7,0-19.3-8.6-19.3-19.3c0-10.7,8.6-19.3,19.3-19.3c10.7,0,19.3,8.7,19.3,19.3C477.1,352.2,468.4,360.9,457.8,360.9z"));
+            this.pins = pinNames.map(n => {
+				let p = this.element.getElementById(n) as SVGElement;
+				if(!p) console.log("missing "+n);
+				U.addClass(p, "sim-pin");
+				return p;
+			});
 
             this.pins.forEach((p, i) => svg.hydrate(p, { title: pinTitles[i] }));
 
@@ -1566,48 +1398,58 @@ namespace pxsim.visuals {
                 return lg;
             })
 
-            this.pinTexts = [67, 165, 275].map(x => <SVGTextElement>svg.child(this.g, "text", { class: "sim-text-pin", x: x, y: 345 }));
-
-            this.buttonsOuter = []; this.buttons = [];
-
-            const outerBtn = (left: number, top: number, label: string) => {
-                const btnr = 4;
-                const btnw = 56.2;
-                const btnn = 6;
-                const btnnm = 10
-                let btng = svg.child(this.g, "g", { class: "sim-button-group" });
-                accessibility.makeFocusable(btng);
-                accessibility.setAria(btng, "button", label);
-                this.buttonsOuter.push(btng);
-                svg.child(btng, "rect", { class: "sim-button-outer", x: left, y: top, rx: btnr, ry: btnr, width: btnw, height: btnw });
-                svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnnm, cy: top + btnnm, r: btnn });
-                svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnnm, cy: top + btnw - btnnm, r: btnn });
-                svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnw - btnnm, cy: top + btnw - btnnm, r: btnn });
-                svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnw - btnnm, cy: top + btnnm, r: btnn });
+            this.pinTexts = { 
+                [DigitalPin.P0]: <SVGTextElement>svg.child(this.g, "text", { class: "sim-text-pin", x: -20, y: 340 }),
+                [DigitalPin.P1]: <SVGTextElement>svg.child(this.g, "text", { class: "sim-text-pin", x: 50, y: 495 }),
+                [DigitalPin.P2]: <SVGTextElement>svg.child(this.g, "text", { class: "sim-text-pin", x: 450, y: 495 }),
+                [DigitalPin.P3]: <SVGTextElement>svg.child(this.g, "text", { class: "sim-text-pin", x: 500, y: 340 })
             }
 
-            outerBtn(25.9, 176.4, "A");
-            this.buttons.push(svg.path(this.g, "sim-button", "M69.7,203.5c0,8.7-7,15.7-15.7,15.7s-15.7-7-15.7-15.7c0-8.7,7-15.7,15.7-15.7S69.7,194.9,69.7,203.5"));
-            outerBtn(418.1, 176.4, "B");
-            this.buttons.push(svg.path(this.g, "sim-button", "M461.9,203.5c0,8.7-7,15.7-15.7,15.7c-8.7,0-15.7-7-15.7-15.7c0-8.7,7-15.7,15.7-15.7C454.9,187.8,461.9,194.9,461.9,203.5"));
-            outerBtn(417, 250, "A+B");
-            this.buttons.push(svg.child(this.g, "circle", { class: "sim-button", cx: 446, cy: 278, r: 16.5 }));
+            // BTN A, B
+            const btnids = ["BTN_A", "BTN_B"];
+            this.buttonsOuter = btnids.map(n => this.element.getElementById(n + "_BOX") as SVGElement);
+            this.buttonsOuter.forEach(b => U.addClass(b, "sim-button-outer"));
+            this.buttons = btnids.map(n => this.element.getElementById(n) as SVGElement);
+            this.buttons.forEach(b => U.addClass(b, "sim-button"));
+
+            // BTN A+B
+            const outerBtn = (left: number, top: number) => {
+                const button = this.mkBtn(left, top);
+                this.buttonsOuter.push(button.outer);
+                this.buttons.push(button.inner);
+
+                return button;
+            }
+
+            let ab = outerBtn(69, MB_HEIGHT - 45);
+            let abtext = svg.child(ab.outer, "text", { x: 67, y: MB_HEIGHT - 10, class: "sim-text inverted" }) as SVGTextElement;
+            abtext.textContent = "A+B";
             (<any>this.buttonsOuter[2]).style.visibility = "hidden";
             (<any>this.buttons[2]).style.visibility = "hidden";
-            this.buttons.forEach(btn => svg.hydrate(btn, { fill: "#111" }));
+        }
 
-            svg.path(this.g, "sim-label", "M35.7,376.4c0-2.8,2.1-5.1,5.5-5.1c3.3,0,5.5,2.4,5.5,5.1v4.7c0,2.8-2.2,5.1-5.5,5.1c-3.3,0-5.5-2.4-5.5-5.1V376.4zM43.3,376.4c0-1.3-0.8-2.3-2.2-2.3c-1.3,0-2.1,1.1-2.1,2.3v4.7c0,1.2,0.8,2.3,2.1,2.3c1.3,0,2.2-1.1,2.2-2.3V376.4z");
-            svg.path(this.g, "sim-label", "M136.2,374.1c2.8,0,3.4-0.8,3.4-2.5h2.9v14.3h-3.4v-9.5h-3V374.1z");
-            svg.path(this.g, "sim-label", "M248.6,378.5c1.7-1,3-1.7,3-3.1c0-1.1-0.7-1.6-1.6-1.6c-1,0-1.8,0.6-1.8,2.1h-3.3c0-2.6,1.8-4.6,5.1-4.6c2.6,0,4.9,1.3,4.9,4.3c0,2.4-2.3,3.9-3.8,4.7c-2,1.3-2.5,1.8-2.5,2.9h6.1v2.7h-10C244.8,381.2,246.4,379.9,248.6,378.5z");
+        private mkBtn(left: number, top: number): { outer: SVGElement, inner: SVGElement } {
+            const btnr = 2;
+            const btnw = 20;
+            const btnn = 1.6;
+            const btnnm = 2;
+            const btnb = 5;
+            let btng = svg.child(this.g, "g", { class: "sim-button-group" });
+            svg.child(btng, "rect", { class: "sim-button-outer", x: left, y: top, rx: btnr, ry: btnr, width: btnw, height: btnw });
+            svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnnm, cy: top + btnnm, r: btnn });
+            svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnnm, cy: top + btnw - btnnm, r: btnn });
+            svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnw - btnnm, cy: top + btnw - btnnm, r: btnn });
+            svg.child(btng, "circle", { class: "sim-button-nut", cx: left + btnw - btnnm, cy: top + btnnm, r: btnn });
 
-            svg.path(this.g, "sim-button-label", "M48.1,270.9l-0.6-1.7h-5.1l-0.6,1.7h-3.5l5.1-14.3h3.1l5.2,14.3H48.1z M45,260.7l-1.8,5.9h3.5L45,260.7z");
-            svg.path(this.g, "sim-button-label", "M449.1,135.8h5.9c3.9,0,4.7,2.4,4.7,3.9c0,1.8-1.4,2.9-2.5,3.2c0.9,0,2.6,1.1,2.6,3.3c0,1.5-0.8,4-4.7,4h-6V135.8zM454.4,141.7c1.6,0,2-1,2-1.7c0-0.6-0.3-1.7-2-1.7h-2v3.4H454.4z M452.4,144.1v3.5h2.1c1.6,0,2-1,2-1.8c0-0.7-0.4-1.8-2-1.8H452.4z")
+            const outer = btng;
+            const inner = svg.child(btng, "circle", {
+                class: "sim-button",
+                cx: left + btnw / 2,
+                cy: top + btnw / 2,
+                r: btnb
+            });
 
-            svg.path(this.g, "sim-label", "M352.1,381.1c0,1.6,0.9,2.5,2.2,2.5c1.2,0,1.9-0.9,1.9-1.9c0-1.2-0.6-2-2.1-2h-1.3v-2.6h1.3c1.5,0,1.9-0.7,1.9-1.8c0-1.1-0.7-1.6-1.6-1.6c-1.4,0-1.8,0.8-1.8,2.1h-3.3c0-2.4,1.5-4.6,5.1-4.6c2.6,0,5,1.3,5,4c0,1.6-1,2.8-2.1,3.2c1.3,0.5,2.3,1.6,2.3,3.5c0,2.7-2.4,4.3-5.2,4.3c-3.5,0-5.5-2.1-5.5-5.1H352.1z")
-            svg.path(this.g, "sim-label", "M368.5,385.9h-3.1l-5.1-14.3h3.5l3.1,10.1l3.1-10.1h3.6L368.5,385.9z")
-            svg.path(this.g, "sim-label", "M444.4,378.3h7.4v2.5h-1.5c-0.6,3.3-3,5.5-7.1,5.5c-4.8,0-7.5-3.5-7.5-7.5c0-3.9,2.8-7.5,7.5-7.5c3.8,0,6.4,2.3,6.6,5h-3.5c-0.2-1.1-1.4-2.2-3.1-2.2c-2.7,0-4.1,2.3-4.1,4.7c0,2.5,1.4,4.7,4.4,4.7c2,0,3.2-1.2,3.4-2.7h-2.5V378.3z")
-            svg.path(this.g, "sim-label", "M461.4,380.9v-9.3h3.3v14.3h-3.5l-5.2-9.2v9.2h-3.3v-14.3h3.5L461.4,380.9z")
-            svg.path(this.g, "sim-label", "M472.7,371.6c4.8,0,7.5,3.5,7.5,7.2s-2.7,7.2-7.5,7.2h-5.3v-14.3H472.7z M470.8,374.4v8.6h1.8c2.7,0,4.2-2.1,4.2-4.3s-1.6-4.3-4.2-4.3H470.8z")
+            return { outer, inner };
         }
 
         private attachEvents() {
@@ -1615,15 +1457,11 @@ namespace pxsim.visuals {
                 switch (msg.type || "") {
                     case "serial": this.flashSystemLed(); break;
                     case "radiopacket": this.flashAntenna(); break;
-                    case "eventbus":
-                        if ((<pxsim.SimulatorEventBusMessage>msg).id == DAL.MES_BROADCAST_GENERAL_ID)
-                            this.flashAntenna();
-                        break;
                 }
             }
             let tiltDecayer = 0;
             this.element.addEventListener(pointerEvents.move, (ev: MouseEvent) => {
-                const state = this.board;
+                let state = this.board;
                 if (!state.accelerometerState.accelerometer.isActive) return;
 
                 if (tiltDecayer) {
@@ -1631,19 +1469,14 @@ namespace pxsim.visuals {
                     tiltDecayer = 0;
                 }
 
-                const bbox = this.element.getBoundingClientRect();
+                let bbox = this.element.getBoundingClientRect();
+                let ax = (ev.clientX - bbox.width / 2) / (bbox.width / 3);
+                let ay = (ev.clientY - bbox.height / 2) / (bbox.height / 3);
 
-                // ev.clientX and ev.clientY are not defined on mobile iOS
-                const xPos = ev.clientX != null ? ev.clientX : ev.pageX;
-                const yPos = ev.clientY != null ? ev.clientY : ev.pageY;
-
-                const ax = (xPos - bbox.width / 2) / (bbox.width / 3);
-                const ay = (yPos - bbox.height / 2) / (bbox.height / 3);
-
-                const x = - Math.max(- 1023, Math.min(1023, Math.floor(ax * 1023)));
-                const y = - Math.max(- 1023, Math.min(1023, Math.floor(ay * 1023)));
-                const z2 = 1023 * 1023 - x * x - y * y;
-                const z = Math.floor((z2 > 0 ? -1 : 1) * Math.sqrt(Math.abs(z2)));
+                let x = - Math.max(- 1023, Math.min(1023, Math.floor(ax * 1023)));
+                let y = - Math.max(- 1023, Math.min(1023, Math.floor(ay * 1023)));
+                let z2 = 1023 * 1023 - x * x - y * y;
+                let z = Math.floor((z2 > 0 ? -1 : 1) * Math.sqrt(Math.abs(z2)));
 
                 state.accelerometerState.accelerometer.update(x, y, z);
                 this.updateTilt();
@@ -1709,29 +1542,9 @@ namespace pxsim.visuals {
                         U.removeClass(svgpin, "touched");
                         this.updatePin(pin, index);
                         return false;
-                    },
-                    // keydown
-                    (ev: KeyboardEvent) => {
-                        let charCode = (typeof ev.which == "number") ? ev.which : ev.keyCode
-                        let state = this.board;
-                        let pin = state.edgeConnectorState.pins[index];
-
-                        if (charCode === 40 || charCode === 37) { // Down/Left arrow
-                            pin.value -= 10;
-                            if (pin.value < 0) {
-                                pin.value = 1023;
-                            }
-                            this.updatePin(pin, index);
-                        } else if (charCode === 38 || charCode === 39) { // Up/Right arrow
-                            pin.value += 10;
-                            if (pin.value > 1023) {
-                                pin.value = 0;
-                            }
-                            this.updatePin(pin, index);
-                        }
                     });
             })
-            this.pins.slice(0, 3).forEach((btn, index) => {
+            this.pins.slice(0, 2).forEach((btn, index) => {
                 pointerEvents.down.forEach(evid => btn.addEventListener(evid, ev => {
                     let state = this.board;
                     state.edgeConnectorState.pins[index].touched = true;
@@ -1750,12 +1563,6 @@ namespace pxsim.visuals {
                     this.board.bus.queue(state.edgeConnectorState.pins[index].id, DAL.MICROBIT_BUTTON_EVT_UP);
                     this.board.bus.queue(state.edgeConnectorState.pins[index].id, DAL.MICROBIT_BUTTON_EVT_CLICK);
                 })
-                accessibility.enableKeyboardInteraction(btn, undefined, () => {
-                    let state = this.board;
-                    this.board.bus.queue(state.edgeConnectorState.pins[index].id, DAL.MICROBIT_BUTTON_EVT_DOWN);
-                    this.board.bus.queue(state.edgeConnectorState.pins[index].id, DAL.MICROBIT_BUTTON_EVT_UP);
-                    this.board.bus.queue(state.edgeConnectorState.pins[index].id, DAL.MICROBIT_BUTTON_EVT_CLICK);
-                });
             })
 
             let bpState = this.board.buttonPairState;
@@ -1770,20 +1577,15 @@ namespace pxsim.visuals {
                 btn.addEventListener(pointerEvents.leave, ev => {
                     let state = this.board;
                     stateButtons[index].pressed = false;
-                    svg.fill(this.buttons[index], this.props.theme.buttonUp);
+                    svg.fill(this.buttons[index], this.props.theme.buttonUps[index]);
                 })
                 btn.addEventListener(pointerEvents.up, ev => {
                     let state = this.board;
                     stateButtons[index].pressed = false;
-                    svg.fill(this.buttons[index], this.props.theme.buttonUp);
+                    svg.fill(this.buttons[index], this.props.theme.buttonUps[index]);
                     this.board.bus.queue(stateButtons[index].id, DAL.MICROBIT_BUTTON_EVT_UP);
                     this.board.bus.queue(stateButtons[index].id, DAL.MICROBIT_BUTTON_EVT_CLICK);
                 })
-                accessibility.enableKeyboardInteraction(btn, undefined, () => {
-                    this.board.bus.queue(stateButtons[index].id, DAL.MICROBIT_BUTTON_EVT_DOWN);
-                    this.board.bus.queue(stateButtons[index].id, DAL.MICROBIT_BUTTON_EVT_UP);
-                    this.board.bus.queue(stateButtons[index].id, DAL.MICROBIT_BUTTON_EVT_CLICK);
-                });
             })
             pointerEvents.down.forEach(evid => this.buttonsOuter[2].addEventListener(evid, ev => {
                 let state = this.board;
@@ -1800,8 +1602,8 @@ namespace pxsim.visuals {
                 stateButtons[0].pressed = false;
                 stateButtons[1].pressed = false;
                 stateButtons[2].pressed = false;
-                svg.fill(this.buttons[0], this.props.theme.buttonUp);
-                svg.fill(this.buttons[1], this.props.theme.buttonUp);
+                svg.fill(this.buttons[0], this.props.theme.buttonUps[0]);
+                svg.fill(this.buttons[1], this.props.theme.buttonUps[1]);
                 svg.fill(this.buttons[2], this.props.theme.virtualButtonUp);
             })
             this.buttonsOuter[2].addEventListener(pointerEvents.up, ev => {
@@ -1809,18 +1611,13 @@ namespace pxsim.visuals {
                 stateButtons[0].pressed = false;
                 stateButtons[1].pressed = false;
                 stateButtons[2].pressed = false;
-                svg.fill(this.buttons[0], this.props.theme.buttonUp);
-                svg.fill(this.buttons[1], this.props.theme.buttonUp);
+                svg.fill(this.buttons[0], this.props.theme.buttonUps[0]);
+                svg.fill(this.buttons[1], this.props.theme.buttonUps[1]);
                 svg.fill(this.buttons[2], this.props.theme.virtualButtonUp);
 
                 this.board.bus.queue(stateButtons[2].id, DAL.MICROBIT_BUTTON_EVT_UP);
                 this.board.bus.queue(stateButtons[2].id, DAL.MICROBIT_BUTTON_EVT_CLICK);
             })
-            accessibility.enableKeyboardInteraction(this.buttonsOuter[2], undefined, () => {
-                this.board.bus.queue(stateButtons[2].id, DAL.MICROBIT_BUTTON_EVT_DOWN);
-                this.board.bus.queue(stateButtons[2].id, DAL.MICROBIT_BUTTON_EVT_UP);
-                this.board.bus.queue(stateButtons[2].id, DAL.MICROBIT_BUTTON_EVT_CLICK);
-            });
         }
     }
 }

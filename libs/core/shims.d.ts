@@ -131,6 +131,21 @@ declare interface Image {
 declare namespace basic {
 
     /**
+     * Sets the color on the build-in LED. Set to 0 to turn off.
+     */
+    //% blockId=device_set_led_color
+    //% block="set led to %color=colorNumberPicker"
+    //% weight=50 shim=basic::setLedColor
+    function setLedColor(color: int32): void;
+
+    /**
+     * Sets the color on the build-in LED. Set to 0 to turn off.
+     */
+    //% blockId=device_turn_rgb_led_off block="turn build-in LED off"
+    //% weight=50 shim=basic::turnRgbLedOff
+    function turnRgbLedOff(): void;
+
+    /**
      * Draws an image on the LED screen.
      * @param leds the pattern of LED to turn on/off
      * @param interval time in milliseconds to pause after drawing
@@ -145,7 +160,7 @@ declare namespace basic {
 
     /**
      * Display text on the display, one character at a time. If the string fits on the screen (i.e. is one letter), does not scroll.
-     * @param text the text to scroll on the screen, eg: "Hello!"
+     * @param text the text to scroll on the screen, eg: "hi!"
      * @param interval how fast to shift characters; eg: 150, 100, 200, -100
      */
     //% help=basic/show-string
@@ -204,7 +219,7 @@ declare namespace basic {
 
 
 
-    //% color=#D400D4 weight=111 icon="\uf192"
+    //% color=#B4009E weight=99 icon="\uf192"
 declare namespace input {
 
     /**
@@ -466,7 +481,7 @@ declare namespace control {
 
 
 
-    //% color=#7600A8 weight=101 icon="\uf205"
+    //% color=#8169E6 weight=35 icon="\uf205"
 declare namespace led {
 
     /**
@@ -577,6 +592,49 @@ declare namespace led {
     //% help=led/screenshot
     //% parts="ledmatrix" shim=led::screenshot
     function screenshot(): Image;
+}
+
+
+    /**
+     * Blocks to control the onboard motors
+     */
+    //% color=#008272 weight=30 icon="\uf1b9"
+declare namespace motors {
+
+    /**
+     * Turns on the motor at a certain percent of power. Switches to single motor mode!
+     * @param power %percent of power sent to the motor. Negative power goes backward. eg: 50
+     */
+    //% blockId=motor_on block="motor on at %percent \\%"
+    //% parts=dcmotor weight=90 blockGap=8
+    //% percent.shadow="speedPicker" shim=motors::motorPower
+    function motorPower(power: int32): void;
+
+    /**
+     * Send break, coast or sleep commands to the motor. Has no effect in dual-motor mode.
+     */
+    //% blockId=motor_command block="motor %command"
+    //% parts=dcmotor weight=85 shim=motors::motorCommand
+    function motorCommand(command: MotorCommand): void;
+
+    /**
+     * Controls two motors attached to the board. Switches to dual-motor mode!
+     */
+    //% blockId=block_dual_motor block="motor %motor|at %percent \\%"
+    //% percent.shadow="speedPicker"
+    //% weight=80 shim=motors::dualMotorPower
+    function dualMotorPower(motor: Motor, duty_percent: int32): void;
+}
+declare namespace music {
+
+    /**
+     * Plays a tone through ``speaker`` for the given duration.
+     * @param frequency pitch of the tone to play in Hertz (Hz)
+     * @param ms tone duration in milliseconds (ms)
+     */
+    //%
+    //% parts="speaker" async useEnumVal=1 shim=music::speakerPlayTone
+    function speakerPlayTone(frequency: int32, ms: int32): void;
 }
 declare namespace pins {
 
@@ -1052,12 +1110,14 @@ declare namespace light {
     /**
      * Sends a color buffer to a light strip
      **/
+    //% advanced=true
     //% shim=light::sendWS2812Buffer
     function sendWS2812Buffer(buf: Buffer, pin: int32): void;
 
     /**
      * Sets the light mode of a pin
      **/
+    //% advanced=true
     //% shim=light::setMode
     function setMode(pin: int32, mode: int32): void;
 }

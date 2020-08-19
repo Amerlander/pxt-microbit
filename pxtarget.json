@@ -116,43 +116,12 @@
         "useNewFunctions": true
     },
     "compileService": {
-        "yottaTarget": "bbc-microbit-classic-gcc",
+        "yottaTarget": "calliope-mini-classic-gcc",
         "yottaCorePackage": "microbit",
-        "githubCorePackage": "lancaster-university/microbit",
-        "gittag": "v2.2.0-rc6",
+        "githubCorePackage": "Amerlander/microbit",
+        "gittag": "v2.2.0-rc6.03",
         "serviceId": "microbit",
         "dockerImage": "pext/yotta:latest"
-    },
-    "multiVariants": [
-        "mbdal",
-        "mbcodal"
-    ],
-    "variants": {
-        "mbdal": {
-            "compile": {},
-            "compileService": {}
-        },
-        "mbcodal": {
-            "compile": {
-                "flashUsableEnd": null,
-                "flashEnd": null
-            },
-            "compileService": {
-                "buildEngine": "codal",
-                "codalTarget": {
-                    "name": "codal-microbit",
-                    "url": "https://github.com/microbit-foundation/codal-microbit",
-                    "branch": "v0.1.1",
-                    "type": "git"
-                },
-                "codalBinary": "MICROBIT",
-                "githubCorePackage": "microbit-foundation/codal",
-                "gittag": "pxt-wip-build-v0.0.1",
-                "serviceId": "mbcodal",
-                "dockerImage": "pext/yotta:latest",
-                "yottaConfigCompatibility": true
-            }
-        }
     },
     "runtime": {
         "mathBlocks": true,
