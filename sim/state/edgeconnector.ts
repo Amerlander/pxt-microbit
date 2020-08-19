@@ -47,7 +47,7 @@ namespace pxsim.pins {
     export function setPull(pinId: number, pull: number) {
         let pin = getPin(pinId);
         if (!pin) return;
-        pin.setPull(pull);
+        pin.pull = pull;
     }
 
     export function analogReadPin(pinId: number): number {
@@ -61,7 +61,7 @@ namespace pxsim.pins {
         let pin = getPin(pinId);
         if (!pin) return;
         pin.mode = PinFlags.Analog | PinFlags.Output;
-        pin.value = value | 0;
+        pin.value = value ? value : 0;
         runtime.queueDisplayUpdate();
     }
 
@@ -101,38 +101,22 @@ namespace pxsim.pins {
         pin.pitch = true;
     }
 
-    export function analogSetPitchVolume(volume: number) {
-        const ec = board().edgeConnectorState;
-        ec.pitchVolume = Math.max(0, Math.min(0xff, volume | 0));
-    }
-
-    export function analogPitchVolume() {
-        const ec = board().edgeConnectorState;
-        return ec.pitchVolume;
-    }
- 
     export function analogPitch(frequency: number, ms: number) {
         // update analog output
-        const b = board();
-        if (!b) return;
-        const ec = b.edgeConnectorState;
-        const pins = ec.pins;
-        const pin = pins.filter(pin => !!pin && pin.pitch)[0] || pins[0];
-        const pitchVolume = ec.pitchVolume | 0;
+        let pins = board().edgeConnectorState.pins;
+        let pin = pins.filter(pin => !!pin && pin.pitch)[0] || pins[0];
         pin.mode = PinFlags.Analog | PinFlags.Output;
-        if (frequency <= 0 || pitchVolume <= 0) {
+        if (frequency <= 0) {
             pin.value = 0;
             pin.period = 0;
         } else {
-            const v = 1 << (pitchVolume >> 5);
-            pin.value = v;
+            pin.value = 512;
             pin.period = 1000000 / frequency;
         }
         runtime.queueDisplayUpdate();
 
         let cb = getResume();
-        const v = pitchVolume / 0xff;
-        AudioContextManager.tone(frequency, v);
+        AudioContextManager.tone(frequency, 1);
         if (ms <= 0) cb();
         else {
             setTimeout(() => {
@@ -144,12 +128,5 @@ namespace pxsim.pins {
                 cb()
             }, ms);
         }
-    }
-
-    export function pushButton(pinId: number) {
-        const b = board();
-        if (!b) return;
-        const ec = b.edgeConnectorState;
-        // TODO support buttons here
     }
 }
