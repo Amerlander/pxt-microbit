@@ -948,7 +948,7 @@ namespace pxsim.visuals {
 		};
 
         constructor(public props: IBoardProps) {
-            this.recordPinCoords();
+            
             this.buildDom();
             if (props && props.wireframe)
                 U.addClass(this.element, "sim-wireframe");
