@@ -120,7 +120,7 @@
         "yottaCorePackage": "microbit",
         "githubCorePackage": "Amerlander/microbit",
         "gittag": "v2.2.0-rc6.03",
-        "serviceId": "microbit",
+        "serviceId": "calliope",
         "dockerImage": "pext/yotta:latest"
     },
     "runtime": {
