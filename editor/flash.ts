@@ -74,7 +74,7 @@ class DAPWrapper implements pxt.packetio.PacketIOWrapper {
     private forceFullFlash = /webusbfullflash=1/.test(window.location.href);
 
     constructor(public readonly io: pxt.packetio.PacketIO) {
-        this.familyID = 0x0D28; // this is the microbit vendor id, not quite UF2 family id
+        this.familyID = 0x1366; // this is the calliope mini vendor id, not quite UF2 family id
         this.io.onDeviceConnectionChanged = (connect) => {
             log(`device connection changed`);
             this.disconnectAsync()

@@ -1,11 +1,23 @@
 #include "pxt.h"
 
-namespace pins {
-    void analogSetPitchVolume(int volume);
-    int analogPitchVolume();
-}
-
 namespace music {
+    /**
+     * Plays a tone through ``speaker`` for the given duration.
+     * @param frequency pitch of the tone to play in Hertz (Hz)
+     * @param ms tone duration in milliseconds (ms)
+     */
+    //%
+    //% parts="speaker" async useEnumVal=1
+    void speakerPlayTone(int frequency, int ms) {
+        // if(frequency > 0) uBit.soundmotor.soundOn(frequency);
+        // else uBit.soundmotor.soundOff();
+        // if(ms > 0) {
+        //     uBit.sleep(ms);
+        //     uBit.soundmotor.soundOff();
+        // }
+
+    }
+
 /**
  * Set the default output volume of the sound synthesizer.
  * @param volume the volume 0...255
@@ -18,11 +30,11 @@ namespace music {
 //% group="Volume"
 //% blockGap=8
 void setVolume(int volume) {
-#if MICROBIT_CODAL
-    uBit.audio.setVolume(max(0, min(255, volume)));
-#else
-    pins::analogSetPitchVolume(volume);
-#endif
+// #if MICROBIT_CODAL
+//     uBit.audio.setVolume(max(0, min(255, volume)));
+// #else
+//     pins::analogSetPitchVolume(volume);
+// #endif
 }
 
 /**
@@ -34,11 +46,12 @@ void setVolume(int volume) {
 //% group="Volume"
 //% blockGap=8
 int volume() {
-#if MICROBIT_CODAL
-    return uBit.audio.getVolume();
-#else
-    return pins::analogPitchVolume();
-#endif
+// #if MICROBIT_CODAL
+//     return uBit.audio.getVolume();
+// #else
+//     return pins::analogPitchVolume();
+// #endif
+    return 0;
 }
 
 /**

@@ -42,6 +42,10 @@ pxt.editor.initExtensionsAsync = function (opts: pxt.editor.ExtensionOptions): P
     };
 
     pxt.usb.setFilters([{
+        vendorId: 0x1366, // segger
+        productId: 0x1025 // calliope
+    },
+    {
         vendorId: 0x0D28,
         productId: 0x0204,
         classCode: 0xff,

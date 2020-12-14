@@ -17,7 +17,7 @@ class SoundExpression {
     //% help=music/play
     //% group="micro:bit (V2)"
     play() {
-        music.__playSoundExpression(this.notes, false)
+        // music.__playSoundExpression(this.notes, false)
     }
 
     /**
@@ -29,7 +29,7 @@ class SoundExpression {
     //% help=music/play-until-done
     //% group="micro:bit (V2)"
     playUntilDone() {
-        music.__playSoundExpression(this.notes, true)
+        // music.__playSoundExpression(this.notes, true)
     }
 }
 
